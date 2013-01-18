@@ -48,7 +48,7 @@ from CutlistPlayer import CutlistPlayer
 #######################################################
 # Screen
 class CutlistDownloader(Screen, HelpableScreen):
-	skinfile = skinfile = os.path.join( resolveFilename(SCOPE_PLUGINS), "Extensions/CutlistDownloader/skin.xml" )
+	skinfile = os.path.join( resolveFilename(SCOPE_PLUGINS), "Extensions/CutlistDownloader/skin.xml" )
 	skin = open(skinfile).read()
 
 	def __init__(self, session, services):
@@ -127,7 +127,6 @@ class CutlistDownloader(Screen, HelpableScreen):
 
 	def selected(self, service, ret):
 		if service and ret is not None:
-			#start_new_thread( self.removeWhats, (service, ret[1]) )
 			id = ret[1]
 			if id in self.cutfiles:
 				print "Cutlist from Cache"
@@ -194,7 +193,8 @@ class CutlistDownloader(Screen, HelpableScreen):
 
 	def removeCallback(self, services, ret):
 		if ret is not None:
-			start_new_thread( self.removeWhats, (services, ret[1]) )
+			#start_new_thread( self.removeWhats, (services, ret[1]) )
+			self.removeWhats(services, ret[1])
 
 	def removeWhats(self, services, whats):
 		print "Removing marker..."

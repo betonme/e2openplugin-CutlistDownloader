@@ -35,7 +35,7 @@ from CutListAT import BestCutListAT
 #######################################################
 # Constants
 NAME = _("CutlistDownloader")
-VERSION = "0.3.1"
+VERSION = "0.4"
 SUPPORT = "http://bit.ly/cutlistdownloaderihad"
 DONATE = "http://bit.ly/cutlistdownloaderpaypal"
 ABOUT = "\n  " + NAME + " " + VERSION + "\n\n" \

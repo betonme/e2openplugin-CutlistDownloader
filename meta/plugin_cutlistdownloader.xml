@@ -1,0 +1,17 @@
+<default>
+  <prerequisites>
+    <tag type="Recording" />
+    <tag type="System" />
+  </prerequisites>
+    <info>
+      <author>betonme</author>
+      <name>CutlistDownloader</name>
+      <packagename>enigma2-plugin-extensions-cutlistdownloader</packagename>
+      <shortdescription>Download cutlists from Cutlist.at</shortdescription>
+      <description>Download an adjust cutlists from Cutlist.at. Cut ads with the CutListEditor or skip ads during playback.</description>
+      <screenshot src="http://www.dreamboxupdate.com/preview/plugin_cutlistdownloader.jpg" />
+    </info>
+  <files type="package"> <!-- without version, without .ipk -->
+  <file type="package" name="enigma2-plugin-extensions-cutlistdownloader" />
+  </files>
+</default>
