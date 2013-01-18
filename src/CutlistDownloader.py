@@ -24,8 +24,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-from os import listdir,lstat,remove
+import os
 import sys
+import re
 
 from twisted.web.client import getPage
 
@@ -166,8 +167,11 @@ class cutlist:
 class CutlistAT():
 	def __init__(self, callback, service):
 		self.callback = callback
+		
+		self.regexp_seriesepisodes = re.compile('(.*)[ _][Ss]{,1}\d{1,2}[EeXx]\d{1,2}.*')  #Only for S01E01 01x01
 		self.searchs = []
 		self.cutlists = []
+		
 		print "EMC CutlistAT"
 		self.searchForCutlists(service)
 
@@ -183,23 +187,56 @@ class CutlistAT():
 			
 			name = ref.getName()
 			info = eServiceCenter.getInstance().info(ref)
-			begin = info.getInfo(ref, iServiceInformation.sTimeCreate) or 0
+			
+			begin = info and info.getInfo(ref, iServiceInformation.sTimeCreate) or -1
+			if begin != -1:
+				end = begin + (info.getLength(ref) or 0)
+			else:
+				end = os.path.getmtime(ref.getPath())
+				begin = end - (info.getLength(ref) or 0)
+				#MAYBE we could also try to parse the filename
+			print begin
+			print end
+			
 			#Maybe later extract date from path filename
 			#channel = ServiceReference(ref).getServiceName() #info and info.getName(service)
 			
 			begins = [localtime(begin), localtime(begin - 10*60), localtime(begin + 10*60)]
-
+			
+			# Is there a better way to handle the title encoding 
+			try:
+				name.decode('utf-8')
+			except UnicodeDecodeError:
+				try:
+					name = name.decode("cp1252").encode("utf-8")
+				except UnicodeDecodeError:
+					name = name.decode("iso-8859-1").encode("utf-8")
+			
+			# Modify title to get search string
 			name = name.lower()
 			
-			#small sharp s ("s-zet") alt + 225 	&szlig;
-			name = name.replace('&auml;', 'ae')
-			name = name.replace('&ouml;', 'oe')
-			name = name.replace('&uuml;', 'ue')
-
+			name = name.replace('\xc3\xa4', 'ae')
+			name = name.replace('\xc3\xb6', 'oe')
+			name = name.replace('\xc3\xbc', 'ue')
+			name = name.replace('\xc3\x9f', 'ss')
+			
 			name = name.replace('-', '_')
+			name = name.replace(',', '_')
+			name = name.replace('\'', '_')
 			name = name.replace(' ', '_')
-			name = name.replace('__', '_')
-			name = name.replace('__', '_')
+			
+			while '__' in name:
+				name = name.replace('__', '_')
+			
+			name = name.rstrip('_')
+			
+			# Remove Series Episode naming
+			#MAYBE read SeriesPlugin config and parse it ??
+			m = self.regexp_seriesepisodes.match(name)
+			if m:
+				print m.group(0)       # The entire match
+				print m.group(1)       # The first parenthesized subgroup.
+				name = m.group(1)
 			
 			for begin in begins:
 				searchfor = ("%s_%s") % (name, strftime('%y.%m.%d_%H-%M', begin))
@@ -222,7 +259,7 @@ class CutlistAT():
 			# Download xml file
 			getPage(downloadUrl, timeout = 10).addCallback(self.parseList).addErrback(self.downloadList)
 		else:
-			self.callback(None)
+			self.callback([])
 	
 	def parseList(self, data):
 		try:
@@ -352,8 +389,8 @@ class CutlistAT():
 				#CUT_TYPE_MARK = 2
 				
 				# Only for cutting software
-				cuesheet.append( (long(start), 0) )
-				cuesheet.append( (long(end),   1) )
+				#cuesheet.append( (long(start), 0) )
+				#cuesheet.append( (long(end),   1) )
 				
 				# For player usage
 				cuesheet.append( (long(start), 2) )

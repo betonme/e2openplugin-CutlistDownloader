@@ -41,13 +41,13 @@ from CutlistDownloader import CutlistAT
 #######################################################
 # Constants
 NAME = _("CutlistDownloader")
-VERSION = "0.1"
-SUPPORT = "http://www.i-have-a-dreambox.com/wbb2/thread.php?threadid="
+VERSION = "0.2"
+SUPPORT = "http://bit.ly/cutlistdownloaderihad"
 DONATE = "http://bit.ly/cutlistdownloaderpaypal"
 ABOUT = "\n  " + NAME + " " + VERSION + "\n\n" \
 				+ _("  (C) 2012 by betonme @ IHAD \n\n") \
 				+ _("  {downloads:d} successful downloads\n") \
-				+ _("  Support: ") + SUPPORT \
+				+ _("  Support: ") + SUPPORT + "\n" \
 				+ _("  Feel free to donate\n") \
 				+ _("  PayPal: ") + DONATE
 
