@@ -46,17 +46,343 @@ import xml.dom.minidom
 from Components.config import config
 from enigma import eServiceCenter, eServiceReference, iServiceInformation
 from ServiceReference import ServiceReference
+from Tools.BoundFunction import boundFunction
 
 
 #############################################################################
 # Server URLs
-getXMLUrl = "http://www.cutlist.at/getxml.php?name="
-
+getListUrl = "http://www.cutlist.at/getxml.php?name="
 getFileUrl = "http://www.cutlist.at/getfile.php?id="
 
 
+class BestCutListAT():
+	def __init__(self, service, callback):
+		self.service = service
+		self.callback = callback
+		self.cutfileat = None
+		self.cutlistat = CutListAT(service, self.bestcutlist, best=True)
+	
+	def bestcutlist(self, cutlist):
+		if cutlist:
+			self.cutfileat = CutFileAT(cutlist[0].id, self.callback)
+
+
+class SearchStrings(object):
+	def __init__(self, service):
+		self.list = []
+		
+		if isinstance(service, eServiceReference):
+			ref = service
+		elif isinstance(service, ServiceReference):
+			ref = service.ref
+		else:
+			return
+		
+		self.service = ref
+		
+		self.regexp_seriesepisodes = re.compile('(.*)[ _][Ss]{,1}\d{1,2}[EeXx]\d{1,2}.*')  #Only for S01E01 01x01
+		
+		name = ref.getName()
+		info = eServiceCenter.getInstance().info(ref)
+		
+		begin = info and info.getInfo(ref, iServiceInformation.sTimeCreate) or -1
+		if begin != -1:
+			end = begin + (info.getLength(ref) or 0)
+		else:
+			end = os.path.getmtime(ref.getPath())
+			begin = end - (info.getLength(ref) or 0)
+			#MAYBE we could also try to parse the filename and extract the date
+		
+		#channel = ServiceReference(ref).getServiceName() #info and info.getName(service)
+		
+		begins = [localtime(begin), localtime(begin - 10*60), localtime(begin + 10*60)]
+		
+		# Is there a better way to handle the title encoding 
+		try:
+			name.decode('utf-8')
+		except UnicodeDecodeError:
+			try:
+				name = name.decode("cp1252").encode("utf-8")
+			except UnicodeDecodeError:
+				name = name.decode("iso-8859-1").encode("utf-8")
+		
+		# Modify title to get search string
+		name = name.lower()
+		
+		name = name.replace('\xc3\xa4', 'ae')
+		name = name.replace('\xc3\xb6', 'oe')
+		name = name.replace('\xc3\xbc', 'ue')
+		name = name.replace('\xc3\x9f', 'ss')
+		
+		name = name.replace('-', '_')
+		name = name.replace(',', '_')
+		name = name.replace('\'', '_')
+		name = name.replace(' ', '_')
+		
+		while '__' in name:
+			name = name.replace('__', '_')
+		
+		name = name.rstrip('_')
+		
+		# Remove Series Episode naming
+		#MAYBE read SeriesPlugin config and parse it ??
+		m = self.regexp_seriesepisodes.match(name)
+		if m:
+			#print m.group(0)       # The entire match
+			#print m.group(1)       # The first parenthesized subgroup.
+			name = m.group(1)
+		
+		for begin in begins:
+			self.list.append( ("%s_%s") % (name, strftime('%y.%m.%d_%H-%M', begin)) )
+
+	def getSearchList(self):
+		return self.list
+
+class CutListAT():
+	def __init__(self, service, callback=None, search="", best=False):
+		self.service = service
+		self.callback = callback
+		self.search = search
+		self.best = best
+		self.cancelled = False
+		
+		self.searchs = []
+		
+		self.list = []
+		self.searchList()
+
+	def getService(self):
+		return self.service
+
+	def getListLength(self):
+		return len(self.list)
+
+	def getList(self):
+		return self.list
+
+	def cancel(self):
+		self.cancelled = True
+
+	# Search available Cutlists
+	def searchList(self):
+		if self.search:
+			self.searchs = [self.search]
+		else:
+			self.searchs = SearchStrings(self.service).getSearchList()
+			self.searchs.reverse()
+		self.downloadList()
+
+	def downloadList(self, *args):
+		if args:
+			print "EMC CutListAT downloadList errorback", args
+		if self.searchs:
+			searchfor = self.searchs.pop()
+			# Remove the last character, ignore the minutes
+			downloadUrl = str(getListUrl+searchfor[:-1])
+			print downloadUrl
+			# Download xml file
+			getPage(downloadUrl, timeout = 10).addCallback(self.parseList).addErrback(self.downloadList)
+		else:
+			if not self.cancelled and callable(self.callback):
+				self.callback(self.list)
+			self.callback = None
+	
+	def parseList(self, data):
+		try:
+			# Because getxml.php returns an empty page if no cutlists
+			# are available, it is necessary to check filesize
+			if data:
+				# Parse xml file
+				doc = xml.dom.minidom.parseString(data)
+				
+				# Create a list of cutlists
+				for node in doc.getElementsByTagName("cutlist"):
+					self.list.append(cutlist(node))
+				
+				lenlist = len(self.list)
+				# Get number of available cutlists
+				print "Found %s cutlist(s)" % ( lenlist )
+				
+				if self.best and lenlist:
+				##self.list.reverse()
+				#self.downloadBestCutlist()
+					if not self.cancelled and callable(self.callback):
+						self.callback(self.list)
+					self.callback = None
+				else:
+					self.downloadList()
+			
+			# No cutlists available
+			else:
+				print "Found 0 cutlists"
+				self.downloadList()
+		except Exception, e:
+			print "[CUTS] parseList exception: " + str(e)
+
+	def cancel(self):
+		self.cancelled = True
+
+
+class CutFileAT():
+	def __init__(self, id, callback=None):
+		self.id = id
+		self.callback = callback
+		self.cancelled = False
+		
+		self.cut_list = []
+		self.downloadCutlist()
+
+	def getCutList(self):
+		return self.cut_list
+
+	def cancel(self):
+		self.cancelled = True
+
+	def downloadCutlist(self):
+		id = self.id
+		if id > 0:
+			downloadUrl = str(getFileUrl+id);
+			print downloadUrl
+			# Download xml file
+			getPage(downloadUrl, timeout = 10).addCallback(self.parseCutlist).addErrback(self.errback)
+		else:
+			if not self.cancelled and callable(self.callback):
+				self.callback([])
+			self.callback = None
+	
+	def errback(self, *args):
+		if args:
+			print "EMC CutListAT downloadCutlist errorback", args
+		else:
+			if not self.cancelled and callable(self.callback):
+				self.callback([])
+			self.callback = None
+	
+	def parseCutlist(self, data):
+		try:
+			if data:
+				print "Cutlist downloaded."
+				
+				# Read cut information from cutlist file
+				segments = self.readCuts(data)   # Returns seconds
+				cut_list = self.convertToPTS(segments)
+				
+				if cut_list:
+					
+					
+					# Increment counter and show popup
+					from Components.config import config
+					config.plugins.cutlistdownloader.download_counter.value += 1
+					if (config.plugins.cutlistdownloader.download_counter.value == 10) \
+						or (config.plugins.cutlistdownloader.download_counter.value == 100) \
+						or (config.plugins.cutlistdownloader.download_counter.value % 1000 == 0):
+						from plugin import ABOUT
+						from Screens.MessageBox import MessageBox
+						from Tools.Notifications import AddPopup
+						about = ABOUT.format( **{'downloads': config.plugins.cutlistdownloader.download_counter.value} )
+						AddPopup(
+							about,
+							MessageBox.TYPE_INFO,
+							0,
+							'CD_PopUp_ID_About'
+						)
+					
+					
+					if not self.cancelled and callable(self.callback):
+						self.cut_list = cut_list
+						self.callback(cut_list)
+					self.callback = None
+				else:
+					self.downloadCutlist()
+			else:
+				self.downloadCutlist()
+		except Exception, e:
+			print "[CUTS] parseCutlist exception: " + str(e)
+
+	###################################################################
+	# Internal
+
+	# readCuts
+	def readCuts(self, data):
+		segments=list()
+		
+		if data.find("StartFrame=") > -1:
+			withframes=1
+		else:
+			withframes=0
+		if withframes==1:
+			startPattern="StartFrame="
+			durPattern="DurationFrames="
+		else:
+			startPattern="Start="
+			durPattern="Duration="
+		# Read file line by line and look for cutting information
+		
+		def readline(data):
+			for line in data.splitlines():
+				yield line
+		
+		rd = readline(data)
+		#try: # Maybe?
+		for line in rd:
+			if line and line.startswith("[Cut"):
+				startFound=False
+				durFound=False
+				while not startFound or not durFound:
+					line=rd.next()
+					if line.startswith(startPattern):
+						start=float(line.partition("=")[2])
+						startFound=True
+					if line.startswith(durPattern):
+						duration=float(line.partition("=")[2])
+						durFound=True
+					if line.startswith("[Cut"):
+						print "Cutlist format error!!!"
+						return
+				if withframes==1:
+					segments.append( ( start/25, duration/25 ) )
+				else:
+					segments.append( ( start, duration ) )
+		#except StopIteration: pass
+		# Return cut positions and durations in seconds as float
+		return segments
+	
+	# Convert and Sync
+	def convertToPTS(self, segments):
+		cut_list = []
+		if segments:
+			e2record_margin  = config.recording.margin_before.value * 60 * 90*1000   # Convert minutes in pts
+			cutlistat_offset = config.plugins.cutlistdownloader.offset.value * 90*1000
+			
+			# Write cut segments
+			for segment in segments:
+				start = segment[0]
+				end = start + segment[1]
+				
+				# Convert seconds into pts
+				start = int( start * 90 * 1000 )
+				end   = int( end * 90 * 1000 )
+				
+				# Sync
+				start += cutlistat_offset - e2record_margin
+				end   += cutlistat_offset - e2record_margin
+				
+				from Cutlist import Cutlist
+				
+				# For player usage
+				cut_list.append( (long(start), Cutlist.CUT_TYPE_MARK) )
+				cut_list.append( (long(end),   Cutlist.CUT_TYPE_MARK) )
+				
+				# Only for cutting software
+				#cut_list.append( (long(start), Cutlist.CUT_TYPE_IN) )
+				#cut_list.append( (long(end),   Cutlist.CUT_TYPE_OUT) )
+			
+			print cut_list
+			return cut_list
+
+
 #############################################################################
-# Cutlist Class
+# List of available Cutlists
 class cutlist:
 	def __init__(self,node): #,serverID):
 		#self.serverID=serverID
@@ -169,301 +495,3 @@ class cutlist:
 		except:
 			self.downloadcount="-"
 
-
-class CutlistAT():
-	def __init__(self, service):
-		self.service = service
-		self.callback = None
-		self.cancelled = False
-		
-		self.regexp_seriesepisodes = re.compile('(.*)[ _][Ss]{,1}\d{1,2}[EeXx]\d{1,2}.*')  #Only for S01E01 01x01
-		self.searchs = []
-		
-		self.list = []
-		#self.cutlist = []
-
-	def getService(self):
-		return self.service
-
-	#def getCutList(self):
-	#	return self.cutlist
-
-	def getListLength(self):
-		return len(self.list)
-
-	def getList(self):
-		return self.list
-
-	# searchList
-	def searchList(self, callback):
-		self.callback = callback
-		
-		service = self.service
-		try:
-			if isinstance(service, eServiceReference):
-				ref = service
-			elif isinstance(service, ServiceReference):
-				ref = service.ref
-			else:
-				return
-			
-			name = ref.getName()
-			info = eServiceCenter.getInstance().info(ref)
-			
-			begin = info and info.getInfo(ref, iServiceInformation.sTimeCreate) or -1
-			if begin != -1:
-				end = begin + (info.getLength(ref) or 0)
-			else:
-				end = os.path.getmtime(ref.getPath())
-				begin = end - (info.getLength(ref) or 0)
-				#MAYBE we could also try to parse the filename and extract the date
-			
-			#channel = ServiceReference(ref).getServiceName() #info and info.getName(service)
-			
-			begins = [localtime(begin), localtime(begin - 10*60), localtime(begin + 10*60)]
-			
-			# Is there a better way to handle the title encoding 
-			try:
-				name.decode('utf-8')
-			except UnicodeDecodeError:
-				try:
-					name = name.decode("cp1252").encode("utf-8")
-				except UnicodeDecodeError:
-					name = name.decode("iso-8859-1").encode("utf-8")
-			
-			# Modify title to get search string
-			name = name.lower()
-			
-			name = name.replace('\xc3\xa4', 'ae')
-			name = name.replace('\xc3\xb6', 'oe')
-			name = name.replace('\xc3\xbc', 'ue')
-			name = name.replace('\xc3\x9f', 'ss')
-			
-			name = name.replace('-', '_')
-			name = name.replace(',', '_')
-			name = name.replace('\'', '_')
-			name = name.replace(' ', '_')
-			
-			while '__' in name:
-				name = name.replace('__', '_')
-			
-			name = name.rstrip('_')
-			
-			# Remove Series Episode naming
-			#MAYBE read SeriesPlugin config and parse it ??
-			m = self.regexp_seriesepisodes.match(name)
-			if m:
-				print m.group(0)       # The entire match
-				print m.group(1)       # The first parenthesized subgroup.
-				name = m.group(1)
-			
-			for begin in begins:
-				searchfor = ("%s_%s") % (name, strftime('%y.%m.%d_%H-%M', begin))
-				#searchfor = ("%s_%s_%s") % (name.replace(' ', '_'), strftime('%y.%m.%d_%H-%M', localtime(begin)), channel.replace(' ', '_'))
-				self.searchs.append( searchfor )
-			
-			self.searchs.reverse()
-			self.downloadList()
-		except Exception, e:
-			print "[CUTS] searchList exception: " + str(e)
-
-	def downloadList(self, *args):
-		if args:
-			print "EMC CutlistAT downloadList errorback", args
-		if self.searchs:
-			searchfor = self.searchs.pop()
-			# Remove the last character, ignore the minutes
-			downloadUrl = str(getXMLUrl+searchfor[:-1])
-			print downloadUrl
-			# Download xml file
-			getPage(downloadUrl, timeout = 10).addCallback(self.parseList).addErrback(self.downloadList)
-		else:
-			if not self.cancelled and callable(self.callback):
-				self.callback(self.list)
-				self.callback = None
-	
-	def parseList(self, data):
-		try:
-			# Because getxml.php returns an empty page if no cutlists
-			# are available, it is necessary to check filesize
-			if data:
-				# Parse xml file
-				doc = xml.dom.minidom.parseString(data)
-				
-				# Create a list of cutlists
-				for node in doc.getElementsByTagName("cutlist"):
-					self.list.append(cutlist(node))
-				
-				# Get number of available cutlists
-				print "Found %s cutlist(s)" % ( len(self.list))
-				
-				##self.list.reverse()
-				#self.downloadBestCutlist()
-				self.downloadList()
-			
-			# No cutlists available
-			else:
-				print "Found 0 cutlists"
-				self.downloadList()
-		except Exception, e:
-			print "[CUTS] parseList exception: " + str(e)
-	
-	def downloadBestCutlist(self, *args):
-		if args:
-			print "EMC CutlistAT downloadCutlist errorback", args
-		if id:
-			cl = self.list.pop()
-			id = cl.id
-			if id > 0:
-				downloadUrl = str(getFileUrl+id);
-				print downloadUrl
-				# Download xml file
-				getPage(downloadUrl, timeout = 10).addCallback(self.parseCutlist).addErrback(self.downloadCutlist)
-			else:
-				self.downloadCutlist()
-		else:
-			self.downloadList()
-	
-	def downloadCutlist(self, id, callback):
-		self.callback = callback
-		if id > 0:
-			downloadUrl = str(getFileUrl+id);
-			print downloadUrl
-			# Download xml file
-			getPage(downloadUrl, timeout = 10).addCallback(self.parseCutlist).addErrback(self.errback)
-		else:
-			if not self.cancelled and callable(self.callback):
-				self.callback([])
-				self.callback = None
-	
-	def errback(self, *args):
-		if args:
-			print "EMC CutlistAT downloadCutlist errorback", args
-		else:
-			if not self.cancelled and callable(self.callback):
-				self.callback([])
-				self.callback = None
-	
-	def parseCutlist(self, data):
-		try:
-			if data:
-				print "Cutlist downloaded."
-				cutlist = self.convertToPTS(data)
-				if cutlist:
-					#self.cutlist = cutlist
-					
-					
-					from Components.config import config
-					config.plugins.cutlistdownloader.download_counter.value += 1
-					if (config.plugins.cutlistdownloader.download_counter.value == 10) \
-						or (config.plugins.cutlistdownloader.download_counter.value == 100) \
-						or (config.plugins.cutlistdownloader.download_counter.value % 1000 == 0):
-						from plugin import ABOUT
-						from Screens.MessageBox import MessageBox
-						from Tools.Notifications import AddPopup
-						about = ABOUT.format( **{'downloads': config.plugins.cutlistdownloader.download_counter.value} )
-						AddPopup(
-							about,
-							MessageBox.TYPE_INFO,
-							0,
-							'CD_PopUp_ID_About'
-						)
-					
-					
-					if not self.cancelled and callable(self.callback):
-						
-						self.callback(cutlist)
-						self.callback = None
-				else:
-					self.downloadCutlist()
-			else:
-				self.downloadCutlist()
-		except Exception, e:
-			print "[CUTS] parseCutlist exception: " + str(e)
-
-	###################################################################
-	# Internal
-
-	# readCuts
-	def readCuts(self, data):
-		segments=list()
-		
-		if data.find("StartFrame=") > -1:
-			withframes=1
-		else:
-			withframes=0
-		if withframes==1:
-			startPattern="StartFrame="
-			durPattern="DurationFrames="
-		else:
-			startPattern="Start="
-			durPattern="Duration="
-		# Read file line by line and look for cutting information
-		
-		def readline(data):
-			for line in data.splitlines():
-				yield line
-		
-		rd = readline(data)
-		#try: # Maybe?
-		for line in rd:
-			if line and line.startswith("[Cut"):
-				startFound=False
-				durFound=False
-				while not startFound or not durFound:
-					line=rd.next()
-					if line.startswith(startPattern):
-						start=float(line.partition("=")[2])
-						startFound=True
-					if line.startswith(durPattern):
-						duration=float(line.partition("=")[2])
-						durFound=True
-					if line.startswith("[Cut"):
-						print "Cutlist format error!!!"
-						return
-				if withframes==1:
-					segments.append( ( start/25, duration/25 ) )
-				else:
-					segments.append( ( start, duration ) )
-		#except StopIteration: pass
-		# Return cut positions and durations in seconds as float
-		return segments
-	
-	# Convert and Sync
-	def convertToPTS(self, data):
-		cutlist = []
-		# Read cut information from cutlist file
-		segments = self.readCuts(data)   # Returns seconds
-		
-		if segments:
-			e2record_margin  = config.recording.margin_before.value * 60 * 90*1000   # Convert minutes in pts
-			cutlistat_offset = config.plugins.cutlistdownloader.offset.value * 90*1000
-			
-			# Write cut segments
-			for segment in segments:
-				start = segment[0]
-				end = start + segment[1]
-				
-				# Convert seconds into pts
-				start = int( start * 90 * 1000 )
-				end   = int( end * 90 * 1000 )
-				
-				# Sync
-				start += cutlistat_offset - e2record_margin
-				end   += cutlistat_offset - e2record_margin
-				
-				from Cutlist import Cutlist
-				
-				# For player usage
-				cutlist.append( (long(start), Cutlist.CUT_TYPE_MARK) )
-				cutlist.append( (long(end),   Cutlist.CUT_TYPE_MARK) )
-				
-				# Only for cutting software
-				#cutlist.append( (long(start), Cutlist.CUT_TYPE_IN) )
-				#cutlist.append( (long(end),   Cutlist.CUT_TYPE_OUT) )
-			
-			print cutlist
-			return cutlist
-
-	def cancel(self):
-		self.cancelled = True

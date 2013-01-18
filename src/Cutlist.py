@@ -173,7 +173,7 @@ class Cutlist():
 					if clpts-self.INSORT_SCOPE < pts < clpts+self.INSORT_SCOPE:
 						# Found a conflicting entry, replace it to avoid doubles and short jumps
 						self.cut_list.remove( (clpts, clwhat) )
-				insort(self.cut_list, (pts, what))
+			insort(self.cut_list, (pts, what))
 		else:
 			insort(self.cut_list, (pts, what))
 

@@ -12,8 +12,6 @@ from Tools.BoundFunction import boundFunction
 from Tools.Notifications import AddPopup
 
 # Plugin internal
-from Cutlist import Cutlist
-from CutlistAT import CutlistAT
 
 
 class ServiceList(MenuList):

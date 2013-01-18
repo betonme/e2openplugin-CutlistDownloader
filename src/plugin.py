@@ -29,12 +29,13 @@ from Plugins.Plugin import PluginDescriptor
 from enigma import eServiceReference
 
 # Plugin internal
+from CutListAT import BestCutListAT
 
 
 #######################################################
 # Constants
 NAME = _("CutlistDownloader")
-VERSION = "0.3"
+VERSION = "0.3.1"
 SUPPORT = "http://bit.ly/cutlistdownloaderihad"
 DONATE = "http://bit.ly/cutlistdownloaderpaypal"
 ABOUT = "\n  " + NAME + " " + VERSION + "\n\n" \
@@ -67,13 +68,20 @@ def Plugins(**kwargs):
 																			fnc = openCutlistDownloader,
 																			needsRestart = False) )
 
+#	descriptors.append( PluginDescriptor(
+#																			name = _("Download Cutlist(s)"),
+#																			description = _("Download Cutlist(s)"),
+#																			where = PluginDescriptor.WHERE_MOVIELIST,
+#																			fnc = downloadCutlists,
+#																			needsRestart = False) )
+
 	return descriptors
 
 
 #######################################################
 # Download from Cutlist.at
 def openCutlistDownloader(session, service, services=None, *args, **kwargs):
-	print "CutlistDownloader"
+	print "CutlistDownloader Open"
 	try:
 		if services:
 			if not isinstance(services, list):
@@ -91,3 +99,39 @@ def openCutlistDownloader(session, service, services=None, *args, **kwargs):
 		print "CutlistDownloader downloadCutlist exception: " + str(e)
 		exc_type, exc_value, exc_traceback = sys.exc_info()
 		traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stdout)
+
+#UNTESTED
+#
+#downloader = []
+#def downloadCutlists(session, service, services=None, *args, **kwargs):
+#	print "CutlistDownloader download and save"
+#	try:
+#		if services:
+#			if not isinstance(services, list):
+#				services = [services]	
+#		else:
+#			services = [service]
+#		
+#		def save(service, cutlist):
+#			if cutlist:
+#				from Cutlist import Cutlist
+#				cue = Cutlist(service)
+#				cue.setCutList(cutlist)
+#				cue.save
+#		
+#		from Tools.BoundFunction import boundFunction
+#		downloader.append( BestCutListAT(service, boundFunction(save, service)) )
+#		
+#	except Exception, e:
+#		print "CutlistDownloader downloadCutlist exception: " + str(e)
+#		exc_type, exc_value, exc_traceback = sys.exc_info()
+#		traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stdout)
+
+
+bestCutList = None
+
+def bestCutlist(service, callback, *args, **kwargs):
+	print "CutlistDownloader Best"
+	global bestCutList
+	bestCutList = BestCutListAT(service, callback)
+
