@@ -27,7 +27,7 @@ from bisect import insort
 from Components.config import *
 
 
-# Cut File support class
+# E2 Cutlist class
 # Description
 # http://git.opendreambox.org/?p=enigma2.git;a=blob;f=doc/FILEFORMAT
 class Cutlist():
@@ -48,18 +48,20 @@ class Cutlist():
 	CUT_TOGGLE_START_FOR_PLAY = 3
 	CUT_TOGGLE_FOR_PLAY = 4
 	
-	# Additional cut_list information
-	#		cut_list[x][0] = pts   = long long
-	#		cut_list[x][1] = what  = long
+	# Additional cutlist information
+	#		cutlist[x][0] = pts   = long long
+	#		cutlist[x][1] = what  = long
 	
 	# Constants
 	ENABLE_RESUME_SUPPORT = True
 	MOVIE_FINISHED = 0xFFFFFFFFFFFFFFFF
+	
+	INSORT_SCOPE = 45000  # 0.5 seconds * 90 * 1000
 
-	def __init__(self, service):
+	def __init__(self, service=None):
 		path = service and service.getPath()
 		
-		name = None
+		#name = None
 		if path:
 			if path.endswith(".iso"):
 				#LATER No support yet
@@ -86,71 +88,95 @@ class Cutlist():
 		return pts / 90 / 1000
 
 	def __secondsToPts(self, seconds):
-		return seconds * 90 * 1000
+		return int(seconds * 90 * 1000)
 
 
 	##############################################################################
-	## Get Functions
+	## Get Set Functions
 	def getCutList(self):
 		return self.cut_list
-		
-	# Wrapper in seconds 
+
 	def getCutListLast(self):
-		return self.__ptsToSeconds( self.__getCutListLast() )
-
-	def getCutListLength(self):
-		return self.__ptsToSeconds( self.__getCutListLength() )
-
-	def getCutListSavedLast(self):
-		return self.__ptsToSeconds( self.__getCutListSavedLast() )
-		
-	# Intenal from cutlist in pts
-	def __getCutListLast(self):
 		if self.cut_list:
 			for (pts, what) in self.cut_list:
 				if what == self.CUT_TYPE_LAST:
 					return pts
 		return 0
 
-	def __getCutListLength(self):
+	def getPreviousMark(self, current):
+		current = current - 5*90*1000
 		if self.cut_list:
-			for (pts, what) in self.cut_list:
-				if what == self.CUT_TYPE_OUT:
+			for (pts, what) in reversed(self.cut_list):
+				if pts < current:
 					return pts
-		return 0
+			else:
+				return 0 
 
-	def __getCutListSavedLast(self):
+	def getNextMark(self, current):
+		current = current + 5*90*1000
 		if self.cut_list:
 			for (pts, what) in self.cut_list:
-				if what == self.CUT_TYPE_SAVEDLAST:
+				if current < pts:
 					return pts
-		return 0
+			else:
+				return -1 # End
+
+	def setCutList(self, cut_list):
+		self.cut_list = cut_list
+
+	def save(self):
+		print "SAVE Cutlist", self.cut_list
+		self.__writeCutFile()
 
 
 	##############################################################################
 	## Modify Functions
 	## Use remove and insort to guarantee the cut list is sorted
 
-	def removeMarksCutList(self):
+	def removeWhats(self, whats):
 		# All Marks will be removed
 		# All others items will stay
+		print "removeWhats", whats
+		print self.cut_list
 		if self.cut_list:
 			for cp in self.cut_list[:]:
-				if cp[1] == self.CUT_TYPE_MARK:
+				if cp[1] in whats:
 					self.cut_list.remove(cp)
 		self.__writeCutFile()
 		print self.cut_list
 
-	def __insort(self, pts, what):
-		if (pts, what) not in self.cut_list:
-			#TODO Handle duplicates and near markers
-			insort(self.cut_list, (pts, what))
+	def toggleMarker(self):
+		tmplist = self.cut_list
+		self.cut_list = []
+		nextInOut = Cutlist.CUT_TYPE_IN
+		for pts, what in tmplist:
+			if what == Cutlist.CUT_TYPE_IN or what == Cutlist.CUT_TYPE_OUT:
+				what = Cutlist.CUT_TYPE_MARK
+			elif what == Cutlist.CUT_TYPE_MARK:
+				what = nextInOut
+				if nextInOut == Cutlist.CUT_TYPE_IN:
+					nextInOut = Cutlist.CUT_TYPE_OUT
+				else:
+					nextInOut = Cutlist.CUT_TYPE_IN
+			self.cut_list.append( (pts,what) )
 
 	def updateCutList(self, cutlist):
 		if cutlist:
 			for pts, what in cutlist:
 				self.__insort(pts, what)
 			self.__writeCutFile()
+
+	def __insort(self, pts, what):
+		if self.cut_list:
+			for (clpts, clwhat) in self.cut_list[:]:
+				if clwhat == what:
+					if clpts-self.INSORT_SCOPE < pts < clpts+self.INSORT_SCOPE:
+						# Found a conflicting entry, replace it to avoid doubles and short jumps
+						self.cut_list.remove( (clpts, clwhat) )
+				insort(self.cut_list, (pts, what))
+		else:
+			insort(self.cut_list, (pts, what))
+
 
 	##############################################################################
 	## File IO Functions
@@ -182,7 +208,7 @@ class Cutlist():
 					# Unpack
 					(pts, what) = struct.unpack('>QI', data[pos:pos+12])
 					self.__insort(long(pts), what)
-					# Next cut_list entry
+					# Next cutlist entry
 					pos += 12
 		else:
 			# No path or no file clear all

@@ -1,0 +1,31 @@
+<keymap>
+	<map context="CutlistDownloaderActions">
+		<key id="KEY_ENTER" mapto="ok" flags="m" />
+		<key id="KEY_OK" mapto="ok" flags="m" />
+		<key id="KEY_EXIT" mapto="exit" flags="m" />
+		<key id="KEY_ESC" mapto="exit" flags="m" />
+		
+		<key id="KEY_RED" mapto="red" flags="m" />
+		<key id="KEY_GREEN" mapto="green" flags="m" />
+		<key id="KEY_YELLOW" mapto="yellow" flags="m" />
+		<key id="KEY_BLUE" mapto="blue" flags="m" />
+	</map>
+	<map context="CutlistPlayerActions">
+		<key id="KEY_ENTER" mapto="ok" flags="m" />
+		<key id="KEY_OK" mapto="ok" flags="m" />
+		<key id="KEY_EXIT" mapto="exit" flags="m" />
+		<key id="KEY_ESC" mapto="exit" flags="m" />
+		
+		<key id="KEY_RED" mapto="red" flags="m" />
+		<key id="KEY_GREEN" mapto="green" flags="m" />
+		<key id="KEY_YELLOW" mapto="yellow" flags="m" />
+		<key id="KEY_BLUE" mapto="blue" flags="m" />
+		
+		<!-- key id="KEY_UP" mapto="up" flags="mr" / -->
+		<!-- key id="KEY_DOWN" mapto="down" flags="mr" / -->
+		<key id="KEY_LEFT" mapto="left" flags="mr" />
+		<key id="KEY_RIGHT" mapto="right" flags="mr" />
+		<key id="KEY_CHANNELUP" mapto="pageUp" flags="m" />
+		<key id="KEY_CHANNELDOWN" mapto="pageDown" flags="m" />
+	</map>
+</keymap>
