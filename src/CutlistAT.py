@@ -384,7 +384,7 @@ class CutFileAT():
 #############################################################################
 # List of available Cutlists
 class cutlist:
-	def __init__(self,node): #,serverID):
+	def __init__(self, node): #,serverID):
 		#self.serverID=serverID
 		# Parse XML Node "cutlist"
 		# 1. id and name

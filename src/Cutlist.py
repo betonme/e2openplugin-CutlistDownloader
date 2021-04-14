@@ -158,7 +158,7 @@ class Cutlist():
 					nextInOut = Cutlist.CUT_TYPE_OUT
 				else:
 					nextInOut = Cutlist.CUT_TYPE_IN
-			self.cut_list.append((pts,what))
+			self.cut_list.append((pts, what))
 
 	def updateCutList(self, cutlist):
 		if cutlist:

@@ -58,7 +58,7 @@ class CutlistDownloader(Screen, HelpableScreen):
 		HelpableScreen.__init__(self)
 		
 		# Dict[service] = List of cutlist ids
-		self.cutlists = dict((k,None) for k in services)
+		self.cutlists = dict((k, None) for k in services)
 		
 		# Dict[id] = Cutfile
 		self.cutfiles = {}
@@ -81,7 +81,7 @@ class CutlistDownloader(Screen, HelpableScreen):
 			"blue": (self.remove, _("Remove Marker")),
 		}, -1) 
 		
-		self["list"] = ServiceList([(s,'-') for s in self.cutlists.iterkeys()])
+		self["list"] = ServiceList([(s, '-') for s in self.cutlists.iterkeys()])
 		
 		self.onLayoutFinish.append(self.layoutFinished)
 
@@ -116,7 +116,7 @@ class CutlistDownloader(Screen, HelpableScreen):
 		if service:
 			cutlistat = self.cutlists[service]
 			if cutlistat:
-				self.showSelection(service, [("%-35s  R%.1f (%2d) #%3d" % (str(c.name[:35]), float(c.rating),int(c.ratingcount),int(c.downloadcount)), str(c.id)) for c in cutlistat.getList()])
+				self.showSelection(service, [("%-35s  R%.1f (%2d) #%3d" % (str(c.name[:35]), float(c.rating), int(c.ratingcount), int(c.downloadcount)), str(c.id)) for c in cutlistat.getList()])
 
 	def showSelection(self, service, list):
 		dlg = self.session.openWithCallback(
@@ -173,7 +173,7 @@ class CutlistDownloader(Screen, HelpableScreen):
 			self.customAT = CutListAT(service, boundFunction(self.customResults, service), search)
 
 	def customResults(self, service, list):
-		self.showSelection(service, [("%-35s  R%.1f (%2d) #%3d" % (str(c.name[:35]), float(c.rating),int(c.ratingcount),int(c.downloadcount)), str(c.id)) for c in list])
+		self.showSelection(service, [("%-35s  R%.1f (%2d) #%3d" % (str(c.name[:35]), float(c.rating), int(c.ratingcount), int(c.downloadcount)), str(c.id)) for c in list])
 
 	#######################################################
 	# Remove Worker
