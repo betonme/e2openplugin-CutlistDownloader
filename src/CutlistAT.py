@@ -241,7 +241,7 @@ class CutFileAT():
 	def downloadCutlist(self):
 		id = self.id
 		if id > 0:
-			downloadUrl = str(getFileUrl+id);
+			downloadUrl = str(getFileUrl+id)
 			print downloadUrl
 			# Download xml file
 			getPage(downloadUrl, timeout = 10).addCallback(self.parseCutlist).addErrback(self.errback)

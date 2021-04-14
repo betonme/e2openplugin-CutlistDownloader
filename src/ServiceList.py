@@ -87,7 +87,8 @@ class ServiceList(MenuList):
 
 	def invalidateService(self, service):
 		idx = self.getIndexOfService(service)
-		if idx < 0: return
+		if idx < 0:
+			return
 		self.l.invalidateEntry( idx ) # force redraw of the item
 
 	def updateService(self, service, value):
