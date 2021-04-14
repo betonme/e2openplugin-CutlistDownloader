@@ -90,9 +90,9 @@ class Cutlist():
 	def __secondsToPts(self, seconds):
 		return int(seconds * 90 * 1000)
 
-
 	##############################################################################
 	## Get Set Functions
+
 	def getCutList(self):
 		return self.cut_list
 
@@ -127,7 +127,6 @@ class Cutlist():
 	def save(self):
 		print "SAVE Cutlist", self.cut_list
 		self.__writeCutFile()
-
 
 	##############################################################################
 	## Modify Functions
@@ -177,9 +176,9 @@ class Cutlist():
 		else:
 			insort(self.cut_list, (pts, what))
 
-
 	##############################################################################
 	## File IO Functions
+
 	def __readCutFile(self, update=False):
 		data = ""
 		path = self.cut_file

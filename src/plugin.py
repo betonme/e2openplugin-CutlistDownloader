@@ -132,6 +132,7 @@ def openCutlistDownloader(session, service, services=None, *args, **kwargs):
 
 bestCutList = None
 
+
 def bestCutlist(service, callback, *args, **kwargs):
 	print "CutlistDownloader Best"
 	global bestCutList

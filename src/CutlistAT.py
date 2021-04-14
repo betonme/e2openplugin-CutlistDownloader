@@ -138,6 +138,7 @@ class SearchStrings(object):
 	def getSearchList(self):
 		return self.list
 
+
 class CutListAT():
 	def __init__(self, service, callback=None, search="", best=False):
 		self.service = service
@@ -269,7 +270,6 @@ class CutFileAT():
 				
 				if cut_list:
 					
-					
 					# Increment counter and show popup
 					from Components.config import config
 					config.plugins.cutlistdownloader.download_counter.value += 1
@@ -286,7 +286,6 @@ class CutFileAT():
 							0,
 							'CD_PopUp_ID_About'
 						)
-					
 					
 					if not self.cancelled and callable(self.callback):
 						self.cut_list = cut_list
