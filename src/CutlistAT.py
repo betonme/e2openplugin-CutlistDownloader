@@ -133,7 +133,7 @@ class SearchStrings(object):
 			name = m.group(1)
 		
 		for begin in begins:
-			self.list.append( ("%s_%s") % (name, strftime('%y.%m.%d_%H-%M', begin)) )
+			self.list.append(("%s_%s") % (name, strftime('%y.%m.%d_%H-%M', begin)))
 
 	def getSearchList(self):
 		return self.list
@@ -201,7 +201,7 @@ class CutListAT():
 				
 				lenlist = len(self.list)
 				# Get number of available cutlists
-				print "Found %s cutlist(s)" % ( lenlist )
+				print "Found %s cutlist(s)" % (lenlist)
 				
 				if self.best and lenlist:
 				##self.list.reverse()
@@ -279,7 +279,7 @@ class CutFileAT():
 						from plugin import ABOUT
 						from Screens.MessageBox import MessageBox
 						from Tools.Notifications import AddPopup
-						about = ABOUT.format( **{'downloads': config.plugins.cutlistdownloader.download_counter.value} )
+						about = ABOUT.format(**{'downloads': config.plugins.cutlistdownloader.download_counter.value})
 						AddPopup(
 							about,
 							MessageBox.TYPE_INFO,
@@ -340,9 +340,9 @@ class CutFileAT():
 						print "Cutlist format error!!!"
 						return
 				if withframes==1:
-					segments.append( ( start/25, duration/25 ) )
+					segments.append((start/25, duration/25))
 				else:
-					segments.append( ( start, duration ) )
+					segments.append((start, duration))
 		#except StopIteration: pass
 		# Return cut positions and durations in seconds as float
 		return segments
@@ -360,8 +360,8 @@ class CutFileAT():
 				end = start + segment[1]
 				
 				# Convert seconds into pts
-				start = int( start * 90 * 1000 )
-				end   = int( end * 90 * 1000 )
+				start = int(start * 90 * 1000)
+				end   = int(end * 90 * 1000)
 				
 				# Sync
 				start += cutlistat_offset - e2record_margin
@@ -370,8 +370,8 @@ class CutFileAT():
 				from Cutlist import Cutlist
 				
 				# For player usage
-				cut_list.append( (long(start), Cutlist.CUT_TYPE_MARK) )
-				cut_list.append( (long(end),   Cutlist.CUT_TYPE_MARK) )
+				cut_list.append((long(start), Cutlist.CUT_TYPE_MARK))
+				cut_list.append((long(end),   Cutlist.CUT_TYPE_MARK))
 				
 				# Only for cutting software
 				#cut_list.append( (long(start), Cutlist.CUT_TYPE_IN) )

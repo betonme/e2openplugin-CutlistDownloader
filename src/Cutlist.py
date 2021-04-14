@@ -158,7 +158,7 @@ class Cutlist():
 					nextInOut = Cutlist.CUT_TYPE_OUT
 				else:
 					nextInOut = Cutlist.CUT_TYPE_IN
-			self.cut_list.append( (pts,what) )
+			self.cut_list.append((pts,what))
 
 	def updateCutList(self, cutlist):
 		if cutlist:
@@ -172,7 +172,7 @@ class Cutlist():
 				if clwhat == what:
 					if clpts-self.INSORT_SCOPE < pts < clpts+self.INSORT_SCOPE:
 						# Found a conflicting entry, replace it to avoid doubles and short jumps
-						self.cut_list.remove( (clpts, clwhat) )
+						self.cut_list.remove((clpts, clwhat))
 			insort(self.cut_list, (pts, what))
 		else:
 			insort(self.cut_list, (pts, what))

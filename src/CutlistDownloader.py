@@ -50,7 +50,7 @@ from CutlistPlayer import CutlistPlayer
 #######################################################
 # Screen
 class CutlistDownloader(Screen, HelpableScreen):
-	skinfile = os.path.join( resolveFilename(SCOPE_PLUGINS), "Extensions/CutlistDownloader/skin.xml" )
+	skinfile = os.path.join(resolveFilename(SCOPE_PLUGINS), "Extensions/CutlistDownloader/skin.xml")
 	skin = open(skinfile).read()
 
 	def __init__(self, session, services):
@@ -66,10 +66,10 @@ class CutlistDownloader(Screen, HelpableScreen):
 		self.customAT = None
 		
 		# Buttons
-		self["key_red"]    = StaticText( _("Show") ) #"_("Download") )
-		self["key_green"]  = StaticText( _("Custom") )
+		self["key_red"]    = StaticText(_("Show")) #"_("Download") )
+		self["key_green"]  = StaticText(_("Custom"))
 		self["key_yellow"] = StaticText("")
-		self["key_blue"]   = StaticText( _("Remove") )
+		self["key_blue"]   = StaticText(_("Remove"))
 		
 		self["custom_actions"] = HelpableActionMap(self, "CutlistDownloaderActions",
 		{
@@ -81,15 +81,15 @@ class CutlistDownloader(Screen, HelpableScreen):
 			"blue":					(self.remove,							_("Remove Marker")),
 		}, -1) 
 		
-		self["list"] = ServiceList( [ (s,'-') for s in self.cutlists.iterkeys()] )
+		self["list"] = ServiceList([(s,'-') for s in self.cutlists.iterkeys()])
 		
-		self.onLayoutFinish.append( self.layoutFinished )
+		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
 		from plugin import NAME, VERSION
-		self.setTitle( NAME + " " + VERSION )
+		self.setTitle(NAME + " " + VERSION)
 		for service in self.cutlists.iterkeys():
-			self.cutlists[service] = CutListAT(service, boundFunction( self.updateService, service ))
+			self.cutlists[service] = CutListAT(service, boundFunction(self.updateService, service))
 
 	def updateService(self, service, list):
 		if service is not None:
@@ -116,11 +116,11 @@ class CutlistDownloader(Screen, HelpableScreen):
 		if service:
 			cutlistat = self.cutlists[service]
 			if cutlistat:
-				self.showSelection( service, [ ("%-35s  R%.1f (%2d) #%3d" % (str(c.name[:35]), float(c.rating),int(c.ratingcount),int(c.downloadcount)), str(c.id)) for c in cutlistat.getList() ] )
+				self.showSelection(service, [("%-35s  R%.1f (%2d) #%3d" % (str(c.name[:35]), float(c.rating),int(c.ratingcount),int(c.downloadcount)), str(c.id)) for c in cutlistat.getList()])
 
 	def showSelection(self, service, list):
 		dlg = self.session.openWithCallback(
-			boundFunction( self.selected, service ),
+			boundFunction(self.selected, service),
 			ChoiceBox,
 			_("Name  Rating (RatingCount)  #Downloads"),
 			list,
@@ -132,16 +132,16 @@ class CutlistDownloader(Screen, HelpableScreen):
 			id = ret[1]
 			if id in self.cutfiles:
 				print "Cutlist from Cache"
-				self.startPlayer( service, self.cutfiles[id].getCutList() )
+				self.startPlayer(service, self.cutfiles[id].getCutList())
 			else:
 				print "Cutlist from Cutlist.at"
-				self.cutfiles[id] = CutFileAT(id, boundFunction( self.startPlayer, service ))
+				self.cutfiles[id] = CutFileAT(id, boundFunction(self.startPlayer, service))
 
 	def startPlayer(self, service, cutlist):
 		if service and cutlist:
 			cue = Cutlist(service)
 			print "Backup", cue.getCutList()
-			self.session.openWithCallback(boundFunction( self.playerClosed, service, cue ), CutlistPlayer, service, cutlist)
+			self.session.openWithCallback(boundFunction(self.playerClosed, service, cue), CutlistPlayer, service, cutlist)
 
 	def playerClosed(self, service, cue, cutlist=None):
 		if cutlist:
@@ -173,7 +173,7 @@ class CutlistDownloader(Screen, HelpableScreen):
 			self.customAT = CutListAT(service, boundFunction(self.customResults, service), search)
 
 	def customResults(self, service, list):
-		self.showSelection( service, [ ("%-35s  R%.1f (%2d) #%3d" % (str(c.name[:35]), float(c.rating),int(c.ratingcount),int(c.downloadcount)), str(c.id)) for c in list ] )
+		self.showSelection(service, [("%-35s  R%.1f (%2d) #%3d" % (str(c.name[:35]), float(c.rating),int(c.ratingcount),int(c.downloadcount)), str(c.id)) for c in list])
 
 	#######################################################
 	# Remove Worker
@@ -181,14 +181,14 @@ class CutlistDownloader(Screen, HelpableScreen):
 		service = self["list"].getCurrent() # self["list"].getServices()
 		if service:
 			dlg = self.session.openWithCallback(
-				boundFunction( self.removeCallback, [service] ),
+				boundFunction(self.removeCallback, [service]),
 				ChoiceBox,
 				_("What do You want to remove?"),
 				[
-					(_("Marker"),     [Cutlist.CUT_TYPE_MARK] ),
-					(_("Cut In/Out"), [Cutlist.CUT_TYPE_IN, Cutlist.CUT_TYPE_OUT] ),
-					(_("Last"),       [Cutlist.CUT_TYPE_LAST] ),
-					(_("All"),        [Cutlist.CUT_TYPE_MARK, Cutlist.CUT_TYPE_IN, Cutlist.CUT_TYPE_OUT, Cutlist.CUT_TYPE_LAST] ),
+					(_("Marker"),     [Cutlist.CUT_TYPE_MARK]),
+					(_("Cut In/Out"), [Cutlist.CUT_TYPE_IN, Cutlist.CUT_TYPE_OUT]),
+					(_("Last"),       [Cutlist.CUT_TYPE_LAST]),
+					(_("All"),        [Cutlist.CUT_TYPE_MARK, Cutlist.CUT_TYPE_IN, Cutlist.CUT_TYPE_OUT, Cutlist.CUT_TYPE_LAST]),
 				]
 			)
 			dlg.setTitle("Clean Cutlist")
@@ -203,10 +203,10 @@ class CutlistDownloader(Screen, HelpableScreen):
 		
 		for service in services:
 			# Load CutList
-			cutlist = Cutlist( service )
+			cutlist = Cutlist(service)
 			# Remove and write CutList
 			cutlist.removeWhats(whats)
 			
-			print os.path.basename( service.getPath() )
+			print os.path.basename(service.getPath())
 		print "Remove marker Finished"
 

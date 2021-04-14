@@ -25,7 +25,7 @@ class ServiceList(MenuList):
 		self.l.setItemHeight(25)
 
 	def applySkin(self, desktop, parent):
-		attribs = [ ] 
+		attribs = [] 
 		if self.skinAttributes is not None:
 			for (attrib, value) in self.skinAttributes:
 				if attrib == "font":
@@ -44,7 +44,7 @@ class ServiceList(MenuList):
 		size = self.l.getItemSize()
 		height = size.height()
 		
-		res = [ service ]
+		res = [service]
 		
 		start = 10
 		end   = int(size.width() / 8 * 7)
@@ -52,11 +52,11 @@ class ServiceList(MenuList):
 			name = service.getName()
 		else:
 			name = ''
-		res.append( MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(name)) )
+		res.append(MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(name)))
 		
 		start = end + 20
 		end   = size.width() - 10
-		res.append( MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(listlength)) )
+		res.append(MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(listlength)))
 		
 		return res
 
@@ -65,7 +65,7 @@ class ServiceList(MenuList):
 		return cur and cur[0]
 
 	def getServices(self):
-		return [ l[0] for l in self.list ]
+		return [l[0] for l in self.list]
 
 	def getIndexOfService(self, service):
 		if service:
@@ -80,7 +80,7 @@ class ServiceList(MenuList):
 		return self.list[index] and self.list[index][0]
 
 	def setList(self, list):
-		self.l.setList( list )
+		self.l.setList(list)
 
 	def invalidateCurrent(self):
 		self.l.invalidateEntry(self.getCurrentIndex())
@@ -89,7 +89,7 @@ class ServiceList(MenuList):
 		idx = self.getIndexOfService(service)
 		if idx < 0:
 			return
-		self.l.invalidateEntry( idx ) # force redraw of the item
+		self.l.invalidateEntry(idx) # force redraw of the item
 
 	def updateService(self, service, value):
 		# Update entry in list... so next time we don't need to recalc
@@ -100,7 +100,7 @@ class ServiceList(MenuList):
 				l = list(x)
 				l[1] = value
 				self.list[idx] = tuple(l)
-				self.l.invalidateEntry( idx ) # force redraw of the item
+				self.l.invalidateEntry(idx) # force redraw of the item
 
 	def moveToService(self, service):
 		if service is None:

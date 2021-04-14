@@ -55,11 +55,11 @@ class CutlistDownloaderScreen(Screen):
 		self.title = title
 		self.worker = worker
 		
-		self.onLayoutFinish.append( self.layoutFinished )
-		self.onShow.append( self.showScreen )
+		self.onLayoutFinish.append(self.layoutFinished)
+		self.onShow.append(self.showScreen)
 
 	def layoutFinished(self):
-		self.setTitle( self.title )
+		self.setTitle(self.title)
 
 	def showScreen(self):
 		self.worker(self.appendText)

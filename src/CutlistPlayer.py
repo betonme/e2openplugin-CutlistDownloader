@@ -94,7 +94,7 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 		print self.cut_list
 		cl = []
 		for pts, what in self.cut_list:
-			cl.append( (pts+CUT_JUMP*90*1000, what) )
+			cl.append((pts+CUT_JUMP*90*1000, what))
 		self.cut_list = cl
 		print cl
 		self.uploadCuesheet()
@@ -108,7 +108,7 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 		print self.cut_list
 		cl = []
 		for pts, what in self.cut_list:
-			cl.append( (pts-CUT_JUMP*90*1000, what) )
+			cl.append((pts-CUT_JUMP*90*1000, what))
 		self.cut_list = cl
 		print cl
 		self.uploadCuesheet()
@@ -121,7 +121,7 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 	def cancelConfirm(self, result):
 		if not result:
 			# Save new cutlist
-			self.close( self.cut_list )
+			self.close(self.cut_list)
 		else:
 			# Restore backup
 			#self.cut_list = self.backup
@@ -130,7 +130,7 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 			self.close()
 
 	def save(self):
-		self.close( self.cut_list )
+		self.close(self.cut_list)
 
 	# Overwrite InfoBar
 	def serviceStarted(self):
@@ -138,16 +138,16 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 			self.doShow()
 
 	def jumpPreviousMark(self):
-		self.doSeek( self.getPreviousMark( self.cueGetCurrentPosition() ))
+		self.doSeek(self.getPreviousMark(self.cueGetCurrentPosition()))
 
 	def jumpNextMark(self):
 		current = self.cueGetCurrentPosition()
 		print current
-		next = self.getNextMark( current )
+		next = self.getNextMark(current)
 		print next
 		#self.doSeek( next )
 		#self.doSeek( self.getNextMark( self.cueGetCurrentPosition() ) )
-		self.doSeekRelative( next - current )
+		self.doSeekRelative(next - current)
 
 	def showMovies(self):
 		pass

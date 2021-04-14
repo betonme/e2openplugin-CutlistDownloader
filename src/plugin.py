@@ -63,12 +63,12 @@ def Plugins(**kwargs):
 	#TODO setup
 	
 	#TODO icon
-	descriptors.append( PluginDescriptor(
+	descriptors.append(PluginDescriptor(
 																			name=_("Open" + " " + NAME),
 																			description=_("Open" + " " + NAME),
 																			where=PluginDescriptor.WHERE_MOVIELIST,
 																			fnc=openCutlistDownloader,
-																			needsRestart=False) )
+																			needsRestart=False))
 
 #	descriptors.append( PluginDescriptor(
 #																			name = _("Download Cutlist(s)"),
@@ -95,7 +95,7 @@ def openCutlistDownloader(session, service, services=None, *args, **kwargs):
 		import CutlistDownloader
 		reload(CutlistDownloader)
 		###
-		session.open( CutlistDownloader.CutlistDownloader, services )
+		session.open(CutlistDownloader.CutlistDownloader, services)
 		
 	except Exception, e:
 		print "CutlistDownloader downloadCutlist exception: " + str(e)
