@@ -15,7 +15,9 @@
 #
 #######################################################################
 
-import os, sys, traceback
+import os
+import sys
+import traceback
 
 # for localized messages
 from . import _
@@ -40,24 +42,24 @@ class CutlistDownloaderScreen(Screen):
 	def __init__(self, session, worker, title):
 		Screen.__init__(self, session)
 		self.skinName = ["TestBox", "Console"]
-		
+
 		self["text"] = ScrollLabel("")
-		self["actions"] = ActionMap(["WizardActions", "DirectionActions"], 
+		self["actions"] = ActionMap(["WizardActions", "DirectionActions"],
 		{
-			"ok":    self.cancel,
-			"back":  self.cancel,
-			"up":    self["text"].pageUp,
-			"down":  self["text"].pageDown
+			"ok": self.cancel,
+			"back": self.cancel,
+			"up": self["text"].pageUp,
+			"down": self["text"].pageDown
 		}, -1)
-		
+
 		self.title = title
 		self.worker = worker
-		
-		self.onLayoutFinish.append( self.layoutFinished )
-		self.onShow.append( self.showScreen )
+
+		self.onLayoutFinish.append(self.layoutFinished)
+		self.onShow.append(self.showScreen)
 
 	def layoutFinished(self):
-		self.setTitle( self.title )
+		self.setTitle(self.title)
 
 	def showScreen(self):
 		self.worker(self.appendText)
@@ -66,7 +68,7 @@ class CutlistDownloaderScreen(Screen):
 		self["text"].setText(text)
 
 	def appendText(self, text):
-		text = self["text"].getText() + '\n' + text 
+		text = self["text"].getText() + '\n' + text
 		self.setText(text)
 
 	def cancel(self):

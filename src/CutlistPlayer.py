@@ -15,7 +15,9 @@
 #
 #######################################################################
 
-import os, sys, traceback
+import os
+import sys
+import traceback
 
 # for localized messages
 from . import _
@@ -38,30 +40,30 @@ CUT_JUMP = 1
 # Screen
 class CutlistPlayer(MoviePlayer, Cutlist):
 	def __init__(self, session, service, cutlistat):
-		
+
 		self.service = service
 		#self.backup = []
 		self.cutlistat = cutlistat
 		self.cut_list = []
-		
+
 		Cutlist.__init__(self)
 		MoviePlayer.__init__(self, session, service)
 		self.skinName = "MoviePlayer"
-		
+
 		self["custom_actions"] = HelpableActionMap(self, "CutlistPlayerActions",
 		{
-			"left":					(self.left,								_("Move Cutlist to the left")),
-			"right":				(self.right,							_("Move Cutlist to the right")),
-			"ok":						(self.switch,							_("Switch between Marker and Cut-In/Out")),
-			"exit":					(self.cancel,							_("Exit without saving")),
+			"left": (self.left, _("Move Cutlist to the left")),
+			"right": (self.right, _("Move Cutlist to the right")),
+			"ok": (self.switch, _("Switch between Marker and Cut-In/Out")),
+			"exit": (self.cancel, _("Exit without saving")),
 			#"up":					(self["list"].pageUp,			_("Page up")),
 			#"down":				(self["list"].pageDown,		_("Page up")),
 			#"red":					(self.ok,									_("Download Single Cutlist")),
-			"green":				(self.save, 							_("Save new cutlist")),
+			"green": (self.save, _("Save new cutlist")),
 			#"yellow":			(self.bestdownload,				_("Page up")),
 			#"blue":				(self.remove,							_("Remove Marker")),
-		}, -3) 
-		
+		}, -3)
+
 		self["Service"] = CutlistService(session.nav, self)
 
 	def switch(self):
@@ -92,7 +94,7 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 		print self.cut_list
 		cl = []
 		for pts, what in self.cut_list:
-			cl.append( (pts+CUT_JUMP*90*1000, what) )
+			cl.append((pts + CUT_JUMP * 90 * 1000, what))
 		self.cut_list = cl
 		print cl
 		self.uploadCuesheet()
@@ -106,12 +108,12 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 		print self.cut_list
 		cl = []
 		for pts, what in self.cut_list:
-			cl.append( (pts-CUT_JUMP*90*1000, what) )
+			cl.append((pts - CUT_JUMP * 90 * 1000, what))
 		self.cut_list = cl
 		print cl
 		self.uploadCuesheet()
 		pts = self.cueGetCurrentPosition()
-		self.doSeek(pts - CUT_JUMP*90*1000)
+		self.doSeek(pts - CUT_JUMP * 90 * 1000)
 
 	def cancel(self):
 		self.session.openWithCallback(self.cancelConfirm, MessageBox, _("Really close without saving settings?"))
@@ -119,7 +121,7 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 	def cancelConfirm(self, result):
 		if not result:
 			# Save new cutlist
-			self.close( self.cut_list )
+			self.close(self.cut_list)
 		else:
 			# Restore backup
 			#self.cut_list = self.backup
@@ -128,7 +130,7 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 			self.close()
 
 	def save(self):
-		self.close( self.cut_list )
+		self.close(self.cut_list)
 
 	# Overwrite InfoBar
 	def serviceStarted(self):
@@ -136,23 +138,23 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 			self.doShow()
 
 	def jumpPreviousMark(self):
-		self.doSeek( self.getPreviousMark( self.cueGetCurrentPosition() ))
+		self.doSeek(self.getPreviousMark(self.cueGetCurrentPosition()))
 
 	def jumpNextMark(self):
 		current = self.cueGetCurrentPosition()
 		print current
-		next = self.getNextMark( current )
+		next = self.getNextMark(current)
 		print next
 		#self.doSeek( next )
 		#self.doSeek( self.getNextMark( self.cueGetCurrentPosition() ) )
-		self.doSeekRelative( next - current )
+		self.doSeekRelative(next - current)
 
 	def showMovies(self):
 		pass
 
 	def toggleShow(self):
 		pass
-	
+
 	def doShow(self):
 		self.show()
 
@@ -162,4 +164,3 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 	def handleLeave(self, how):
 		self.is_closing = True
 		self.close()
-

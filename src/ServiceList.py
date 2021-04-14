@@ -19,17 +19,17 @@ class ServiceList(MenuList):
 
 	def __init__(self, list):
 		MenuList.__init__(self, list, enableWrapAround=False, content=eListboxPythonMultiContent)
-		
+
 		self.l.setFont(0, gFont("Regular", 22))
 		self.l.setBuildFunc(self.buildListboxEntry)
 		self.l.setItemHeight(25)
 
 	def applySkin(self, desktop, parent):
-		attribs = [ ] 
+		attribs = []
 		if self.skinAttributes is not None:
 			for (attrib, value) in self.skinAttributes:
 				if attrib == "font":
-					self.l.setFont(0, parseFont(value, ((1,1),(1,1))))
+					self.l.setFont(0, parseFont(value, ((1, 1), (1, 1))))
 				elif attrib == "itemHeight":
 					self.l.setItemHeight(int(value))
 				else:
@@ -43,21 +43,21 @@ class ServiceList(MenuList):
 	def buildListboxEntry(self, service, listlength):
 		size = self.l.getItemSize()
 		height = size.height()
-		
-		res = [ service ]
-		
+
+		res = [service]
+
 		start = 10
-		end   = int(size.width() / 8 * 7)
+		end = int(size.width() / 8 * 7)
 		if service is not None:
 			name = service.getName()
 		else:
 			name = ''
-		res.append( MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(name)) )
-		
+		res.append(MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(name)))
+
 		start = end + 20
-		end   = size.width() - 10
-		res.append( MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(listlength)) )
-		
+		end = size.width() - 10
+		res.append(MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(listlength)))
+
 		return res
 
 	def getCurrent(self):
@@ -65,7 +65,7 @@ class ServiceList(MenuList):
 		return cur and cur[0]
 
 	def getServices(self):
-		return [ l[0] for l in self.list ]
+		return [l[0] for l in self.list]
 
 	def getIndexOfService(self, service):
 		if service:
@@ -75,20 +75,21 @@ class ServiceList(MenuList):
 					return idx
 				idx += 1
 		return -1
-	
+
 	def getServiceOfIndex(self, index):
 		return self.list[index] and self.list[index][0]
 
 	def setList(self, list):
-		self.l.setList( list )
+		self.l.setList(list)
 
 	def invalidateCurrent(self):
 		self.l.invalidateEntry(self.getCurrentIndex())
 
 	def invalidateService(self, service):
 		idx = self.getIndexOfService(service)
-		if idx < 0: return
-		self.l.invalidateEntry( idx ) # force redraw of the item
+		if idx < 0:
+			return
+		self.l.invalidateEntry(idx) # force redraw of the item
 
 	def updateService(self, service, value):
 		# Update entry in list... so next time we don't need to recalc
@@ -99,7 +100,7 @@ class ServiceList(MenuList):
 				l = list(x)
 				l[1] = value
 				self.list[idx] = tuple(l)
-				self.l.invalidateEntry( idx ) # force redraw of the item
+				self.l.invalidateEntry(idx) # force redraw of the item
 
 	def moveToService(self, service):
 		if service is None:
@@ -110,4 +111,3 @@ class ServiceList(MenuList):
 				self.instance.moveSelectionTo(idx)
 				break
 			idx += 1
-

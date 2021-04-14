@@ -40,27 +40,27 @@ class Cutlist():
 	# Additional custom EMC specific types
 	# Has to be remove before starting a player
 	CUT_TYPE_SAVEDLAST = 4
-	
+
 	# Toggle Types
 	CUT_TOGGLE_START = 0
 	CUT_TOGGLE_RESUME = 1
 	CUT_TOGGLE_FINISHED = 2
 	CUT_TOGGLE_START_FOR_PLAY = 3
 	CUT_TOGGLE_FOR_PLAY = 4
-	
+
 	# Additional cutlist information
 	#		cutlist[x][0] = pts   = long long
 	#		cutlist[x][1] = what  = long
-	
+
 	# Constants
 	ENABLE_RESUME_SUPPORT = True
 	MOVIE_FINISHED = 0xFFFFFFFFFFFFFFFF
-	
+
 	INSORT_SCOPE = 45000  # 0.5 seconds * 90 * 1000
 
 	def __init__(self, service=None):
 		path = service and service.getPath()
-		
+
 		#name = None
 		if path:
 			if path.endswith(".iso"):
@@ -74,14 +74,14 @@ class Cutlist():
 			elif os.path.isdir(path):
 				path += "/dvd"
 			path += ".cuts"
-		
+
 		self.cut_file = path
 		print path
 		self.cut_list = []
-		
+
 		self.__readCutFile()
 		print self.cut_list
-		
+
 	def __ptsToSeconds(self, pts):
 		# Cut files are using the presentation time stamp time format
 		# pts has a resolution of 90kHz
@@ -90,9 +90,9 @@ class Cutlist():
 	def __secondsToPts(self, seconds):
 		return int(seconds * 90 * 1000)
 
-
 	##############################################################################
 	## Get Set Functions
+
 	def getCutList(self):
 		return self.cut_list
 
@@ -104,16 +104,16 @@ class Cutlist():
 		return 0
 
 	def getPreviousMark(self, current):
-		current = current - 5*90*1000
+		current = current - 5 * 90 * 1000
 		if self.cut_list:
 			for (pts, what) in reversed(self.cut_list):
 				if pts < current:
 					return pts
 			else:
-				return 0 
+				return 0
 
 	def getNextMark(self, current):
-		current = current + 5*90*1000
+		current = current + 5 * 90 * 1000
 		if self.cut_list:
 			for (pts, what) in self.cut_list:
 				if current < pts:
@@ -127,7 +127,6 @@ class Cutlist():
 	def save(self):
 		print "SAVE Cutlist", self.cut_list
 		self.__writeCutFile()
-
 
 	##############################################################################
 	## Modify Functions
@@ -158,7 +157,7 @@ class Cutlist():
 					nextInOut = Cutlist.CUT_TYPE_OUT
 				else:
 					nextInOut = Cutlist.CUT_TYPE_IN
-			self.cut_list.append( (pts,what) )
+			self.cut_list.append((pts, what))
 
 	def updateCutList(self, cutlist):
 		if cutlist:
@@ -170,16 +169,16 @@ class Cutlist():
 		if self.cut_list:
 			for (clpts, clwhat) in self.cut_list[:]:
 				if clwhat == what:
-					if clpts-self.INSORT_SCOPE < pts < clpts+self.INSORT_SCOPE:
+					if clpts - self.INSORT_SCOPE < pts < clpts + self.INSORT_SCOPE:
 						# Found a conflicting entry, replace it to avoid doubles and short jumps
-						self.cut_list.remove( (clpts, clwhat) )
+						self.cut_list.remove((clpts, clwhat))
 			insort(self.cut_list, (pts, what))
 		else:
 			insort(self.cut_list, (pts, what))
 
-
 	##############################################################################
 	## File IO Functions
+
 	def __readCutFile(self, update=False):
 		data = ""
 		path = self.cut_file
@@ -187,10 +186,10 @@ class Cutlist():
 			if not update:
 				# No update clear all
 				self.cut_list = []
-			
+
 			# Read data from file
 			# OE1.6 with Pyton 2.6
-			#with open(path, 'rb') as f: data = f.read()	
+			#with open(path, 'rb') as f: data = f.read()
 			f = None
 			try:
 				f = open(path, 'rb')
@@ -200,13 +199,13 @@ class Cutlist():
 			finally:
 				if f is not None:
 					f.close()
-					
+
 			# Parse and unpack data
 			if data:
 				pos = 0
-				while pos+12 <= len(data):
+				while pos + 12 <= len(data):
 					# Unpack
-					(pts, what) = struct.unpack('>QI', data[pos:pos+12])
+					(pts, what) = struct.unpack('>QI', data[pos:pos + 12])
 					self.__insort(long(pts), what)
 					# Next cutlist entry
 					pos += 12
@@ -218,12 +217,12 @@ class Cutlist():
 		data = ""
 		path = self.cut_file
 		if path:
-			
+
 			# Generate and pack data
 			if self.cut_list:
 				for (pts, what) in self.cut_list:
 					data += struct.pack('>QI', pts, what)
-			
+
 			# Write data to file
 			# OE1.6 with Pyton 2.6
 			#with open(path, 'wb') as f: f.write(data)
