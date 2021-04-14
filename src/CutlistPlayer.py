@@ -40,16 +40,16 @@ CUT_JUMP = 1
 # Screen
 class CutlistPlayer(MoviePlayer, Cutlist):
 	def __init__(self, session, service, cutlistat):
-		
+
 		self.service = service
 		#self.backup = []
 		self.cutlistat = cutlistat
 		self.cut_list = []
-		
+
 		Cutlist.__init__(self)
 		MoviePlayer.__init__(self, session, service)
 		self.skinName = "MoviePlayer"
-		
+
 		self["custom_actions"] = HelpableActionMap(self, "CutlistPlayerActions",
 		{
 			"left": (self.left, _("Move Cutlist to the left")),
@@ -62,8 +62,8 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 			"green": (self.save, _("Save new cutlist")),
 			#"yellow":			(self.bestdownload,				_("Page up")),
 			#"blue":				(self.remove,							_("Remove Marker")),
-		}, -3) 
-		
+		}, -3)
+
 		self["Service"] = CutlistService(session.nav, self)
 
 	def switch(self):
@@ -154,7 +154,7 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 
 	def toggleShow(self):
 		pass
-	
+
 	def doShow(self):
 		self.show()
 
@@ -164,4 +164,3 @@ class CutlistPlayer(MoviePlayer, Cutlist):
 	def handleLeave(self, how):
 		self.is_closing = True
 		self.close()
-

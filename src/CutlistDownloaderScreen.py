@@ -42,19 +42,19 @@ class CutlistDownloaderScreen(Screen):
 	def __init__(self, session, worker, title):
 		Screen.__init__(self, session)
 		self.skinName = ["TestBox", "Console"]
-		
+
 		self["text"] = ScrollLabel("")
-		self["actions"] = ActionMap(["WizardActions", "DirectionActions"], 
+		self["actions"] = ActionMap(["WizardActions", "DirectionActions"],
 		{
 			"ok": self.cancel,
 			"back": self.cancel,
 			"up": self["text"].pageUp,
 			"down": self["text"].pageDown
 		}, -1)
-		
+
 		self.title = title
 		self.worker = worker
-		
+
 		self.onLayoutFinish.append(self.layoutFinished)
 		self.onShow.append(self.showScreen)
 
@@ -68,7 +68,7 @@ class CutlistDownloaderScreen(Screen):
 		self["text"].setText(text)
 
 	def appendText(self, text):
-		text = self["text"].getText() + '\n' + text 
+		text = self["text"].getText() + '\n' + text
 		self.setText(text)
 
 	def cancel(self):

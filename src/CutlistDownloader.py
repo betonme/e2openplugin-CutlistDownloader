@@ -56,21 +56,21 @@ class CutlistDownloader(Screen, HelpableScreen):
 	def __init__(self, session, services):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
-		
+
 		# Dict[service] = List of cutlist ids
 		self.cutlists = dict((k, None) for k in services)
-		
+
 		# Dict[id] = Cutfile
 		self.cutfiles = {}
-		
+
 		self.customAT = None
-		
+
 		# Buttons
 		self["key_red"] = StaticText(_("Show")) #"_("Download") )
 		self["key_green"] = StaticText(_("Custom"))
 		self["key_yellow"] = StaticText("")
 		self["key_blue"] = StaticText(_("Remove"))
-		
+
 		self["custom_actions"] = HelpableActionMap(self, "CutlistDownloaderActions",
 		{
 			"ok": (self.select, _("Show available Cutlists")),
@@ -79,10 +79,10 @@ class CutlistDownloader(Screen, HelpableScreen):
 			"green": (self.custom, _("Customize search string")),
 			#"yellow":			(self.bestdownload,			 _("Page up")),
 			"blue": (self.remove, _("Remove Marker")),
-		}, -1) 
-		
+		}, -1)
+
 		self["list"] = ServiceList([(s, '-') for s in self.cutlists.iterkeys()])
-		
+
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
@@ -200,13 +200,12 @@ class CutlistDownloader(Screen, HelpableScreen):
 
 	def removeWhats(self, services, whats):
 		print "Removing marker..."
-		
+
 		for service in services:
 			# Load CutList
 			cutlist = Cutlist(service)
 			# Remove and write CutList
 			cutlist.removeWhats(whats)
-			
+
 			print os.path.basename(service.getPath())
 		print "Remove marker Finished"
-

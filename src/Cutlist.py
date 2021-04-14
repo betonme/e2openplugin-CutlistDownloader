@@ -40,27 +40,27 @@ class Cutlist():
 	# Additional custom EMC specific types
 	# Has to be remove before starting a player
 	CUT_TYPE_SAVEDLAST = 4
-	
+
 	# Toggle Types
 	CUT_TOGGLE_START = 0
 	CUT_TOGGLE_RESUME = 1
 	CUT_TOGGLE_FINISHED = 2
 	CUT_TOGGLE_START_FOR_PLAY = 3
 	CUT_TOGGLE_FOR_PLAY = 4
-	
+
 	# Additional cutlist information
 	#		cutlist[x][0] = pts   = long long
 	#		cutlist[x][1] = what  = long
-	
+
 	# Constants
 	ENABLE_RESUME_SUPPORT = True
 	MOVIE_FINISHED = 0xFFFFFFFFFFFFFFFF
-	
+
 	INSORT_SCOPE = 45000  # 0.5 seconds * 90 * 1000
 
 	def __init__(self, service=None):
 		path = service and service.getPath()
-		
+
 		#name = None
 		if path:
 			if path.endswith(".iso"):
@@ -74,14 +74,14 @@ class Cutlist():
 			elif os.path.isdir(path):
 				path += "/dvd"
 			path += ".cuts"
-		
+
 		self.cut_file = path
 		print path
 		self.cut_list = []
-		
+
 		self.__readCutFile()
 		print self.cut_list
-		
+
 	def __ptsToSeconds(self, pts):
 		# Cut files are using the presentation time stamp time format
 		# pts has a resolution of 90kHz
@@ -110,7 +110,7 @@ class Cutlist():
 				if pts < current:
 					return pts
 			else:
-				return 0 
+				return 0
 
 	def getNextMark(self, current):
 		current = current + 5 * 90 * 1000
@@ -186,10 +186,10 @@ class Cutlist():
 			if not update:
 				# No update clear all
 				self.cut_list = []
-			
+
 			# Read data from file
 			# OE1.6 with Pyton 2.6
-			#with open(path, 'rb') as f: data = f.read()	
+			#with open(path, 'rb') as f: data = f.read()
 			f = None
 			try:
 				f = open(path, 'rb')
@@ -199,7 +199,7 @@ class Cutlist():
 			finally:
 				if f is not None:
 					f.close()
-					
+
 			# Parse and unpack data
 			if data:
 				pos = 0
@@ -217,12 +217,12 @@ class Cutlist():
 		data = ""
 		path = self.cut_file
 		if path:
-			
+
 			# Generate and pack data
 			if self.cut_list:
 				for (pts, what) in self.cut_list:
 					data += struct.pack('>QI', pts, what)
-			
+
 			# Write data to file
 			# OE1.6 with Pyton 2.6
 			#with open(path, 'wb') as f: f.write(data)

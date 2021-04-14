@@ -59,9 +59,9 @@ config.plugins.cutlistdownloader.offset = ConfigNumber(default=5 * 60)  # In sec
 # Plugin main function
 def Plugins(**kwargs):
 	descriptors = []
-	
+
 	#TODO setup
-	
+
 	#TODO icon
 	descriptors.append(PluginDescriptor(
 																			name=_("Open" + " " + NAME),
@@ -87,16 +87,16 @@ def openCutlistDownloader(session, service, services=None, *args, **kwargs):
 	try:
 		if services:
 			if not isinstance(services, list):
-				services = [services]	
+				services = [services]
 		else:
 			services = [service]
-		
+
 		### For testing only
 		import CutlistDownloader
 		reload(CutlistDownloader)
 		###
 		session.open(CutlistDownloader.CutlistDownloader, services)
-		
+
 	except Exception, e:
 		print "CutlistDownloader downloadCutlist exception: " + str(e)
 		exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -110,20 +110,20 @@ def openCutlistDownloader(session, service, services=None, *args, **kwargs):
 #	try:
 #		if services:
 #			if not isinstance(services, list):
-#				services = [services]	
+#				services = [services]
 #		else:
 #			services = [service]
-#		
+#
 #		def save(service, cutlist):
 #			if cutlist:
 #				from Cutlist import Cutlist
 #				cue = Cutlist(service)
 #				cue.setCutList(cutlist)
 #				cue.save
-#		
+#
 #		from Tools.BoundFunction import boundFunction
 #		downloader.append( BestCutListAT(service, boundFunction(save, service)) )
-#		
+#
 #	except Exception, e:
 #		print "CutlistDownloader downloadCutlist exception: " + str(e)
 #		exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -137,4 +137,3 @@ def bestCutlist(service, callback, *args, **kwargs):
 	print "CutlistDownloader Best"
 	global bestCutList
 	bestCutList = BestCutListAT(service, callback)
-

@@ -19,13 +19,13 @@ class ServiceList(MenuList):
 
 	def __init__(self, list):
 		MenuList.__init__(self, list, enableWrapAround=False, content=eListboxPythonMultiContent)
-		
+
 		self.l.setFont(0, gFont("Regular", 22))
 		self.l.setBuildFunc(self.buildListboxEntry)
 		self.l.setItemHeight(25)
 
 	def applySkin(self, desktop, parent):
-		attribs = [] 
+		attribs = []
 		if self.skinAttributes is not None:
 			for (attrib, value) in self.skinAttributes:
 				if attrib == "font":
@@ -43,9 +43,9 @@ class ServiceList(MenuList):
 	def buildListboxEntry(self, service, listlength):
 		size = self.l.getItemSize()
 		height = size.height()
-		
+
 		res = [service]
-		
+
 		start = 10
 		end = int(size.width() / 8 * 7)
 		if service is not None:
@@ -53,11 +53,11 @@ class ServiceList(MenuList):
 		else:
 			name = ''
 		res.append(MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(name)))
-		
+
 		start = end + 20
 		end = size.width() - 10
 		res.append(MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(listlength)))
-		
+
 		return res
 
 	def getCurrent(self):
@@ -75,7 +75,7 @@ class ServiceList(MenuList):
 					return idx
 				idx += 1
 		return -1
-	
+
 	def getServiceOfIndex(self, index):
 		return self.list[index] and self.list[index][0]
 
@@ -111,4 +111,3 @@ class ServiceList(MenuList):
 				self.instance.moveSelectionTo(idx)
 				break
 			idx += 1
-
