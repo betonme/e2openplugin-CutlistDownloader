@@ -66,19 +66,19 @@ class CutlistDownloader(Screen, HelpableScreen):
 		self.customAT = None
 		
 		# Buttons
-		self["key_red"]    = StaticText(_("Show")) #"_("Download") )
-		self["key_green"]  = StaticText(_("Custom"))
+		self["key_red"] = StaticText(_("Show")) #"_("Download") )
+		self["key_green"] = StaticText(_("Custom"))
 		self["key_yellow"] = StaticText("")
-		self["key_blue"]   = StaticText(_("Remove"))
+		self["key_blue"] = StaticText(_("Remove"))
 		
 		self["custom_actions"] = HelpableActionMap(self, "CutlistDownloaderActions",
 		{
-			"ok":						(self.select,							_("Show available Cutlists")),
-			"exit":					(self.exit,								_("Exit")),
-			"red":					(self.select,							_("Show available Cutlists")),
-			"green":				(self.custom,							_("Customize search string")),
+			"ok": (self.select, _("Show available Cutlists")),
+			"exit": (self.exit, _("Exit")),
+			"red": (self.select, _("Show available Cutlists")),
+			"green": (self.custom, _("Customize search string")),
 			#"yellow":			(self.bestdownload,			 _("Page up")),
-			"blue":					(self.remove,							_("Remove Marker")),
+			"blue": (self.remove, _("Remove Marker")),
 		}, -1) 
 		
 		self["list"] = ServiceList([(s,'-') for s in self.cutlists.iterkeys()])
@@ -185,10 +185,10 @@ class CutlistDownloader(Screen, HelpableScreen):
 				ChoiceBox,
 				_("What do You want to remove?"),
 				[
-					(_("Marker"),     [Cutlist.CUT_TYPE_MARK]),
+					(_("Marker"), [Cutlist.CUT_TYPE_MARK]),
 					(_("Cut In/Out"), [Cutlist.CUT_TYPE_IN, Cutlist.CUT_TYPE_OUT]),
-					(_("Last"),       [Cutlist.CUT_TYPE_LAST]),
-					(_("All"),        [Cutlist.CUT_TYPE_MARK, Cutlist.CUT_TYPE_IN, Cutlist.CUT_TYPE_OUT, Cutlist.CUT_TYPE_LAST]),
+					(_("Last"), [Cutlist.CUT_TYPE_LAST]),
+					(_("All"), [Cutlist.CUT_TYPE_MARK, Cutlist.CUT_TYPE_IN, Cutlist.CUT_TYPE_OUT, Cutlist.CUT_TYPE_LAST]),
 				]
 			)
 			dlg.setTitle("Clean Cutlist")

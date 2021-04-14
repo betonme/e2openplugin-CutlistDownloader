@@ -46,10 +46,10 @@ class CutlistDownloaderScreen(Screen):
 		self["text"] = ScrollLabel("")
 		self["actions"] = ActionMap(["WizardActions", "DirectionActions"], 
 		{
-			"ok":    self.cancel,
-			"back":  self.cancel,
-			"up":    self["text"].pageUp,
-			"down":  self["text"].pageDown
+			"ok": self.cancel,
+			"back": self.cancel,
+			"up": self["text"].pageUp,
+			"down": self["text"].pageDown
 		}, -1)
 		
 		self.title = title

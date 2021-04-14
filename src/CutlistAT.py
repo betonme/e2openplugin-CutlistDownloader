@@ -95,7 +95,7 @@ class SearchStrings(object):
 		
 		#channel = ServiceReference(ref).getServiceName() #info and info.getName(service)
 		
-		begins = [localtime(begin), localtime(begin - 10*60), localtime(begin + 10*60)]
+		begins = [localtime(begin), localtime(begin - 10 * 60), localtime(begin + 10 * 60)]
 		
 		# Is there a better way to handle the title encoding 
 		try:
@@ -178,7 +178,7 @@ class CutListAT():
 		if self.searchs:
 			searchfor = self.searchs.pop()
 			# Remove the last character, ignore the minutes
-			downloadUrl = str(getListUrl+searchfor[:-1])
+			downloadUrl = str(getListUrl + searchfor[:-1])
 			print downloadUrl
 			# Download xml file
 			getPage(downloadUrl, timeout=10).addCallback(self.parseList).addErrback(self.downloadList)
@@ -241,7 +241,7 @@ class CutFileAT():
 	def downloadCutlist(self):
 		id = self.id
 		if id > 0:
-			downloadUrl = str(getFileUrl+id)
+			downloadUrl = str(getFileUrl + id)
 			print downloadUrl
 			# Download xml file
 			getPage(downloadUrl, timeout=10).addCallback(self.parseCutlist).addErrback(self.errback)
@@ -304,18 +304,18 @@ class CutFileAT():
 
 	# readCuts
 	def readCuts(self, data):
-		segments=list()
+		segments = list()
 		
 		if data.find("StartFrame=") > -1:
-			withframes=1
+			withframes = 1
 		else:
-			withframes=0
-		if withframes==1:
-			startPattern="StartFrame="
-			durPattern="DurationFrames="
+			withframes = 0
+		if withframes == 1:
+			startPattern = "StartFrame="
+			durPattern = "DurationFrames="
 		else:
-			startPattern="Start="
-			durPattern="Duration="
+			startPattern = "Start="
+			durPattern = "Duration="
 		# Read file line by line and look for cutting information
 		
 		def readline(data):
@@ -326,21 +326,21 @@ class CutFileAT():
 		#try: # Maybe?
 		for line in rd:
 			if line and line.startswith("[Cut"):
-				startFound=False
-				durFound=False
+				startFound = False
+				durFound = False
 				while not startFound or not durFound:
-					line=rd.next()
+					line = rd.next()
 					if line.startswith(startPattern):
-						start=float(line.partition("=")[2])
-						startFound=True
+						start = float(line.partition("=")[2])
+						startFound = True
 					if line.startswith(durPattern):
-						duration=float(line.partition("=")[2])
-						durFound=True
+						duration = float(line.partition("=")[2])
+						durFound = True
 					if line.startswith("[Cut"):
 						print "Cutlist format error!!!"
 						return
-				if withframes==1:
-					segments.append((start/25, duration/25))
+				if withframes == 1:
+					segments.append((start / 25, duration / 25))
 				else:
 					segments.append((start, duration))
 		#except StopIteration: pass
@@ -351,8 +351,8 @@ class CutFileAT():
 	def convertToPTS(self, segments):
 		cut_list = []
 		if segments:
-			e2record_margin  = config.recording.margin_before.value * 60 * 90*1000   # Convert minutes in pts
-			cutlistat_offset = config.plugins.cutlistdownloader.offset.value * 90*1000
+			e2record_margin = config.recording.margin_before.value * 60 * 90 * 1000   # Convert minutes in pts
+			cutlistat_offset = config.plugins.cutlistdownloader.offset.value * 90 * 1000
 			
 			# Write cut segments
 			for segment in segments:
@@ -361,17 +361,17 @@ class CutFileAT():
 				
 				# Convert seconds into pts
 				start = int(start * 90 * 1000)
-				end   = int(end * 90 * 1000)
+				end = int(end * 90 * 1000)
 				
 				# Sync
 				start += cutlistat_offset - e2record_margin
-				end   += cutlistat_offset - e2record_margin
+				end += cutlistat_offset - e2record_margin
 				
 				from Cutlist import Cutlist
 				
 				# For player usage
 				cut_list.append((long(start), Cutlist.CUT_TYPE_MARK))
-				cut_list.append((long(end),   Cutlist.CUT_TYPE_MARK))
+				cut_list.append((long(end), Cutlist.CUT_TYPE_MARK))
 				
 				# Only for cutting software
 				#cut_list.append( (long(start), Cutlist.CUT_TYPE_IN) )
@@ -389,109 +389,109 @@ class cutlist:
 		# Parse XML Node "cutlist"
 		# 1. id and name
 		try:
-			tmp=node.getElementsByTagName("id")
-			self.id=tmp[0].firstChild.data
-			tmp=node.getElementsByTagName("name")
-			self.name=tmp[0].firstChild.data
+			tmp = node.getElementsByTagName("id")
+			self.id = tmp[0].firstChild.data
+			tmp = node.getElementsByTagName("name")
+			self.name = tmp[0].firstChild.data
 		except:
 			# If this happens, the server is broken
-			self.id=-1
-			self.name=""
+			self.id = -1
+			self.name = ""
 		# 2. user-rating 
 		try:
-			tmp=node.getElementsByTagName("rating")
-			self.rating=tmp[0].firstChild.data
+			tmp = node.getElementsByTagName("rating")
+			self.rating = tmp[0].firstChild.data
 		except:
-			self.rating="0" 
+			self.rating = "0" 
 		# 3. Name of the author
 		try:
-			tmp=node.getElementsByTagName("author")
-			self.author=tmp[0].firstChild.data
+			tmp = node.getElementsByTagName("author")
+			self.author = tmp[0].firstChild.data
 		except:
-			self.author="unknown"
+			self.author = "unknown"
 		# 4. ErrorCodes
 		try:
-			tmp=node.getElementsByTagName("errors")
-			self.errorCodes=tmp[0].firstChild.data
-			self.errors=""
-			if self.errorCodes[0]==1: 
-				self.errors=self.errors + "Missing Beginning! " 
-			if self.errorCodes[1]==1: 
-				self.errors=self.errors + "Missing Ending! "
-			if self.errorCodes[2]==1: 
-				self.errors=self.errors + "Missing Audio! "
-			if self.errorCodes[3]==1: 
-				self.errors=self.errors + "Missing Video! "
-			if self.errorCodes[4]==1: 
-				self.errors=self.errors + "Unknown error! "
-			if self.errorCodes[5]==1: 
-				self.errors=self.errors + "EPG error! "
+			tmp = node.getElementsByTagName("errors")
+			self.errorCodes = tmp[0].firstChild.data
+			self.errors = ""
+			if self.errorCodes[0] == 1: 
+				self.errors = self.errors + "Missing Beginning! " 
+			if self.errorCodes[1] == 1: 
+				self.errors = self.errors + "Missing Ending! "
+			if self.errorCodes[2] == 1: 
+				self.errors = self.errors + "Missing Audio! "
+			if self.errorCodes[3] == 1: 
+				self.errors = self.errors + "Missing Video! "
+			if self.errorCodes[4] == 1: 
+				self.errors = self.errors + "Unknown error! "
+			if self.errorCodes[5] == 1: 
+				self.errors = self.errors + "EPG error! "
 			# If none of the above is true, then there are no errors.
-			if self.errors=="": 
-				self.errors="No errors."
+			if self.errors == "": 
+				self.errors = "No errors."
 			else:
-				self.errors= self.errors
+				self.errors = self.errors
 		except:
-			self.errorCodes="000000"
-			self.errors="No information available."
+			self.errorCodes = "000000"
+			self.errors = "No information available."
 
 		# 5. Ratingcount of user ratings 
 		try:
-			tmp=node.getElementsByTagName("ratingcount")
-			self.ratingcount=tmp[0].firstChild.data
+			tmp = node.getElementsByTagName("ratingcount")
+			self.ratingcount = tmp[0].firstChild.data
 		except:
-			self.ratingcount="0"
+			self.ratingcount = "0"
 		# 5. Rating by author
 		try:
-			tmp=node.getElementsByTagName("ratingbyauthor")
-			self.ratingByAuthor=tmp[0].firstChild.data
+			tmp = node.getElementsByTagName("ratingbyauthor")
+			self.ratingByAuthor = tmp[0].firstChild.data
 		except:
-			self.ratingByAuthor="-"
+			self.ratingByAuthor = "-"
 		# 6. Number of cuts
 		try:
-			tmp=node.getElementsByTagName("cuts")
-			self.cuts=int(tmp[0].firstChild.data)
+			tmp = node.getElementsByTagName("cuts")
+			self.cuts = int(tmp[0].firstChild.data)
 		except:
-			self.cuts=0
+			self.cuts = 0
 		# 7. With frames or with seconds ? 
 		try:
-			tmp=node.getElementsByTagName("withframes")
-			self.withframes=int(tmp[0].firstChild.data)
+			tmp = node.getElementsByTagName("withframes")
+			self.withframes = int(tmp[0].firstChild.data)
 		except:
-			self.withframes=0
+			self.withframes = 0
 		try:
-			tmp=node.getElementsByTagName("withtime")
-			self.withtime=int(tmp[0].firstChild.data)
+			tmp = node.getElementsByTagName("withtime")
+			self.withtime = int(tmp[0].firstChild.data)
 		except:
-			self.withtime=0
+			self.withtime = 0
 		# 8. Duration
 		try:
-			tmp=node.getElementsByTagName("duration")
-			self.duration=tmp[0].firstChild.data
+			tmp = node.getElementsByTagName("duration")
+			self.duration = tmp[0].firstChild.data
 		except:
-			self.duration=0
+			self.duration = 0
 		# 9. Actual content
 		try:
-			tmp=node.getElementsByTagName("actualcontent")
-			self.actualcontent=tmp[0].firstChild.data
+			tmp = node.getElementsByTagName("actualcontent")
+			self.actualcontent = tmp[0].firstChild.data
 		except:
-			self.actualcontent="-"
+			self.actualcontent = "-"
 		# 10. Filename
 		try:
-			tmp=node.getElementsByTagName("filename")
-			self.filename=tmp[0].firstChild.data
+			tmp = node.getElementsByTagName("filename")
+			self.filename = tmp[0].firstChild.data
 		except:
-			self.filename=""
+			self.filename = ""
 		# 11. Usercomment
 		try:
-			tmp=node.getElementsByTagName("usercomment")
-			self.usercomment=unicode(tmp[0].firstChild.data)
+			tmp = node.getElementsByTagName("usercomment")
+			self.usercomment = unicode(tmp[0].firstChild.data)
 		except:
-			self.usercomment="-"
+			self.usercomment = "-"
 		# Downloadcount
 		try:
-			tmp=node.getElementsByTagName("downloadcount")
-			self.downloadcount=unicode(tmp[0].firstChild.data)
+			tmp = node.getElementsByTagName("downloadcount")
+			self.downloadcount = unicode(tmp[0].firstChild.data)
 		except:
-			self.downloadcount="-"
+			self.downloadcount = "-"
 

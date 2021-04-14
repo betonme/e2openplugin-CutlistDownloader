@@ -52,7 +52,7 @@ config.plugins.cutlistdownloader = ConfigSubsection()
 
 # Internal
 config.plugins.cutlistdownloader.download_counter = ConfigNumber(default=0)
-config.plugins.cutlistdownloader.offset           = ConfigNumber(default=5*60)  # In seconds
+config.plugins.cutlistdownloader.offset = ConfigNumber(default=5 * 60)  # In seconds
 
 
 #######################################################

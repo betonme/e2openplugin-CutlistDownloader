@@ -47,7 +47,7 @@ class ServiceList(MenuList):
 		res = [service]
 		
 		start = 10
-		end   = int(size.width() / 8 * 7)
+		end = int(size.width() / 8 * 7)
 		if service is not None:
 			name = service.getName()
 		else:
@@ -55,7 +55,7 @@ class ServiceList(MenuList):
 		res.append(MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(name)))
 		
 		start = end + 20
-		end   = size.width() - 10
+		end = size.width() - 10
 		res.append(MultiContentEntryText(pos=(start, 0), size=(end, height), font=0, flags=RT_HALIGN_LEFT, text=str(listlength)))
 		
 		return res

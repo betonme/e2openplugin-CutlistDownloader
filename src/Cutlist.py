@@ -104,7 +104,7 @@ class Cutlist():
 		return 0
 
 	def getPreviousMark(self, current):
-		current = current - 5*90*1000
+		current = current - 5 * 90 * 1000
 		if self.cut_list:
 			for (pts, what) in reversed(self.cut_list):
 				if pts < current:
@@ -113,7 +113,7 @@ class Cutlist():
 				return 0 
 
 	def getNextMark(self, current):
-		current = current + 5*90*1000
+		current = current + 5 * 90 * 1000
 		if self.cut_list:
 			for (pts, what) in self.cut_list:
 				if current < pts:
@@ -170,7 +170,7 @@ class Cutlist():
 		if self.cut_list:
 			for (clpts, clwhat) in self.cut_list[:]:
 				if clwhat == what:
-					if clpts-self.INSORT_SCOPE < pts < clpts+self.INSORT_SCOPE:
+					if clpts - self.INSORT_SCOPE < pts < clpts + self.INSORT_SCOPE:
 						# Found a conflicting entry, replace it to avoid doubles and short jumps
 						self.cut_list.remove((clpts, clwhat))
 			insort(self.cut_list, (pts, what))
@@ -204,9 +204,9 @@ class Cutlist():
 			# Parse and unpack data
 			if data:
 				pos = 0
-				while pos+12 <= len(data):
+				while pos + 12 <= len(data):
 					# Unpack
-					(pts, what) = struct.unpack('>QI', data[pos:pos+12])
+					(pts, what) = struct.unpack('>QI', data[pos:pos + 12])
 					self.__insort(long(pts), what)
 					# Next cutlist entry
 					pos += 12
