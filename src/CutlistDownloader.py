@@ -162,9 +162,9 @@ class CutlistDownloader(Screen, HelpableScreen):
 			self.session.openWithCallback(
 				boundFunction(self.customized, service),
 				InputBox,
-				text = searchs[0],
-				title = _("Enter custom search string:"),
-				windowTitle = _("Custom search")
+				text=searchs[0],
+				title=_("Enter custom search string:"),
+				windowTitle=_("Custom search")
 			)
 
 	def customized(self, service, search):

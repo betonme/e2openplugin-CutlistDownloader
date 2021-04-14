@@ -181,7 +181,7 @@ class CutListAT():
 			downloadUrl = str(getListUrl+searchfor[:-1])
 			print downloadUrl
 			# Download xml file
-			getPage(downloadUrl, timeout = 10).addCallback(self.parseList).addErrback(self.downloadList)
+			getPage(downloadUrl, timeout=10).addCallback(self.parseList).addErrback(self.downloadList)
 		else:
 			if not self.cancelled and callable(self.callback):
 				self.callback(self.list)
@@ -244,7 +244,7 @@ class CutFileAT():
 			downloadUrl = str(getFileUrl+id)
 			print downloadUrl
 			# Download xml file
-			getPage(downloadUrl, timeout = 10).addCallback(self.parseCutlist).addErrback(self.errback)
+			getPage(downloadUrl, timeout=10).addCallback(self.parseCutlist).addErrback(self.errback)
 		else:
 			if not self.cancelled and callable(self.callback):
 				self.callback([])

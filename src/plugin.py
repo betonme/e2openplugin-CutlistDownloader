@@ -51,8 +51,8 @@ ABOUT = "\n  " + NAME + " " + VERSION + "\n\n" \
 config.plugins.cutlistdownloader = ConfigSubsection()
 
 # Internal
-config.plugins.cutlistdownloader.download_counter = ConfigNumber(default = 0)
-config.plugins.cutlistdownloader.offset           = ConfigNumber(default = 5*60)  # In seconds
+config.plugins.cutlistdownloader.download_counter = ConfigNumber(default=0)
+config.plugins.cutlistdownloader.offset           = ConfigNumber(default=5*60)  # In seconds
 
 
 #######################################################
@@ -64,11 +64,11 @@ def Plugins(**kwargs):
 	
 	#TODO icon
 	descriptors.append( PluginDescriptor(
-																			name = _("Open" + " " + NAME),
-																			description = _("Open" + " " + NAME),
-																			where = PluginDescriptor.WHERE_MOVIELIST,
-																			fnc = openCutlistDownloader,
-																			needsRestart = False) )
+																			name=_("Open" + " " + NAME),
+																			description=_("Open" + " " + NAME),
+																			where=PluginDescriptor.WHERE_MOVIELIST,
+																			fnc=openCutlistDownloader,
+																			needsRestart=False) )
 
 #	descriptors.append( PluginDescriptor(
 #																			name = _("Download Cutlist(s)"),
